@@ -8,26 +8,26 @@ import (
 )
 
 func main() {
-	const size = 5
-	var storage [size]string
-	var index int
+    const size = 5
+    var storage [size]string
+    var index int
 	var exe = true
 	var scanner = bufio.NewScanner(os.Stdin)
-	for exe {
-		fmt.Print("Enter command and data: ")
+	for exe  {
+	    fmt.Print("Enter command and data: ")
 		if !scanner.Scan() {
 			return
 		}
 
-		var input = strings.SplitN(scanner.Text(), " ", 2)
+	    var input = strings.SplitN(scanner.Text(), " ", 2)
 		switch input[0] {
 		case "exit":
 			exe = false
 			fmt.Print("Bye!\n")
 		case "create":
 			if index >= size {
-				fmt.Print("[Error] The list of notes is full\n")
-				continue
+			    fmt.Print("[Error] The list of notes is full\n")
+			    continue
 			}
 			if input[1] == "" {
 				fmt.Print("[Error] The note cannot be empty\n")
@@ -52,3 +52,5 @@ func main() {
 		}
 	}
 }
+
+
