@@ -132,27 +132,46 @@ def main():
     cases = [
         Case(checker, [
             prompt_WaitingForUserInput,
-            new.command("create This is my first record!", "create", ""),
+            new.command("create This is my first record!", "The note was successfully created", ""),
             prompt_WaitingForUserInput,
-            new.command("create This is my second record!", "create", ""),
+            new.command("create This is my second record!", "The note was successfully created", ""),
             prompt_WaitingForUserInput,
-            new.command("list", "list", ""),
+            new.command("list",
+                        "Index 0: This is my first record!\n"
+                        "Index 1: This is my second record!\n",
+                        ""),
             prompt_WaitingForUserInput,
-            new.command("exit 1098", "Bye!", ""),
+            new.command("create This is my third record!", "The note was successfully created", ""),
+            prompt_WaitingForUserInput,
+            new.command("create This is my forth record!", "The note was successfully created", ""),
+            prompt_WaitingForUserInput,
+            new.command("create This is my fifth record!", "The note was successfully created", ""),
+            prompt_WaitingForUserInput,
+            new.command("create This is my sixth record!", "[Error] The list of notes is full", ""),
+            prompt_WaitingForUserInput,
+            new.command("clear", "[OK] All notes were successfully deleted", ""),
+            prompt_WaitingForUserInput,
+            new.command("create This is my sixth record!", "The note was successfully created", ""),
+            prompt_WaitingForUserInput,
+            new.command("list",
+                        "Index 0: This is my sixth record!\n",
+                        ""),
+            prompt_WaitingForUserInput,
+            new.command("exit", "Bye!", ""),
         ])
     ]
-
-    for i in range(2):
-        units = []
-
-        for j in range(rand.randrange(1 + 2 * i, 3 + 2 * i)):
-            units.append(prompt_WaitingForUserInput)
-            rs = randomString().partition(' ')
-            units.append(new.command(f"{rs[0]} {rs[2]}", f"{rs[0]}", ""))
-
-        units.append(prompt_WaitingForUserInput)
-        units.append(new.command(f"exit {randomString()}", "Bye!", ""))
-        cases.append(Case(checker, units))
+    #
+    # for i in range(2):
+    #     units = []
+    #
+    #     for j in range(rand.randrange(1 + 2 * i, 3 + 2 * i)):
+    #         units.append(prompt_WaitingForUserInput)
+    #         rs = randomString().partition(' ')
+    #         units.append(new.command(f"{rs[0]} {rs[2]}", f"{rs[0]}", ""))
+    #
+    #     units.append(prompt_WaitingForUserInput)
+    #     units.append(new.command(f"exit {randomString()}", "Bye!", ""))
+    #     cases.append(Case(checker, units))
 
     test = HSTest(cases)
     test.run_tests()
