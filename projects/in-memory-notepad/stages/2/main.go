@@ -11,8 +11,8 @@ func main() {
 	const size = 5
 	var storage [size]string
 	var index int
-	var exe = true
 	var scanner = bufio.NewScanner(os.Stdin)
+	var exe = true
 	for exe {
 		fmt.Print("Enter command and data: ")
 		if !scanner.Scan() {
