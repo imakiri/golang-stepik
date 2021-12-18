@@ -13,27 +13,21 @@ def randomString() -> str:
 
 
 class Unit:
-    def __init__(self, separator: str, command: str, result: str, feedback: str):
-        self.isUnit = True
+    def __init__(self, isExecutable: bool, separator: str, command: str, result: str, feedback: str):
+        self.isExecutable = isExecutable
         self.separator = separator
         self.command = command
         self.result = result
         self.feedback = feedback
 
     def input(self) -> str:
-        return self.command + self.separator
+        if self.isExecutable:
+            return self.command + self.separator
+        else:
+            return ""
 
     def output(self) -> str:
         return self.result + self.separator
-
-
-class Prompt(Unit):
-    def __init__(self, separator: str, result: str, feedback: str):
-        super().__init__(separator, "", result, feedback)
-        self.isUnit = False
-
-    def input(self) -> str:
-        raise AttributeError
 
 
 class Result:
@@ -54,6 +48,17 @@ class Result:
         return CheckResult(self.isOk, self.format())
 
 
+class New:
+    def __init__(self, separator: str):
+        self.separator = separator
+
+    def command(self, command: str, result: str, feedback: str) -> Unit:
+        return Unit(True, self.separator, command, result, feedback)
+
+    def prompt(self, result: str, feedback: str) -> Unit:
+        return Unit(False, self.separator, "", result, feedback)
+
+
 class Case:
     def __init__(self, units: List[Unit]):
         self.units = units
@@ -61,16 +66,17 @@ class Case:
     def input(self) -> str:
         s = ""
         for u in self.units:
-            if u.isUnit:
-                s += u.input()
+            s += u.input()
         return s
 
     def output(self) -> str:
         s = ""
         for u in self.units:
             s += u.output()
-
         return s
+
+    def formatToHS(self) -> Tuple[str, str]:
+        return (self.input(), self.output())
 
     def check(self, user_output: str) -> Result:
         remaining_user_output = user_output
@@ -90,30 +96,21 @@ class Case:
             remaining_user_output = remaining_user_output[i:]
 
 
-class New:
-    def __init__(self, separator: str):
-        self.separator = separator
-
-    def unit(self, command: str, result: str, feedback: str) -> Unit:
-        return Unit(self.separator, command, result, feedback)
-
-    def prompt(self, result: str, feedback: str) -> Prompt:
-        return Prompt(self.separator, result, feedback)
-
-
-def newCases() -> List[Case]:
+def generateCases() -> List[Case]:
     new = New("\n")
+
+    prompt_WaitingForUserInput = new.prompt("Enter command and data: ", "The program should ask user for a command")
 
     cases = [
         Case([
-            new.prompt("Enter command and data: ", "The program should ask user for a command"),
-            new.unit("create This is my first record!", "create", ""),
-            new.prompt("Enter command and data: ", "The program should ask user for a command"),
-            new.unit("create This is my second record!", "create", ""),
-            new.prompt("Enter command and data: ", "The program should ask user for a command"),
-            new.unit("list", "list", ""),
-            new.prompt("Enter command and data: ", "The program should ask user for a command"),
-            new.unit("exit 1098", "Bye!", ""),
+            prompt_WaitingForUserInput,
+            new.command("create This is my first record!", "create", ""),
+            prompt_WaitingForUserInput,
+            new.command("create This is my second record!", "create", ""),
+            prompt_WaitingForUserInput,
+            new.command("list", "list", ""),
+            prompt_WaitingForUserInput,
+            new.command("exit 1098", "Bye!", ""),
         ])
     ]
 
@@ -121,12 +118,12 @@ def newCases() -> List[Case]:
         units = []
 
         for j in range(rand.randrange(1 + 2 * i, 3 + 2 * i)):
-            units.append(new.prompt("Enter command and data: ", "The program should ask user for a command"))
+            units.append(prompt_WaitingForUserInput)
             rs = randomString().partition(' ')
-            units.append(new.unit(f"{rs[0]} {rs[2]}", f"{rs[0]}", ""))
+            units.append(new.command(f"{rs[0]} {rs[2]}", f"{rs[0]}", ""))
 
-        units.append(new.prompt("Enter command and data: ", "The program should ask user for a command"))
-        units.append(new.unit(f"exit {randomString()}", "Bye!", ""))
+        units.append(prompt_WaitingForUserInput)
+        units.append(new.command(f"exit {randomString()}", "Bye!", ""))
         cases.append(Case(units))
 
     return cases
@@ -135,13 +132,12 @@ def newCases() -> List[Case]:
 class Test(StageTest):
     def __init__(self):
         super().__init__()
-        self.cases = newCases()
+        self.cases = generateCases()
 
     def generate(self) -> List[TestCase]:
         cases = []
         for case in self.cases:
-            cases.append((case.input(), case.output()))
-
+            cases.append(case.formatToHS())
         return TestCase.from_stepik(cases)
 
     def check(self, user_answer: str, correct_answer: Any) -> CheckResult:
