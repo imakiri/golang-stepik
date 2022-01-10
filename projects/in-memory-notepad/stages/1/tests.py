@@ -5,158 +5,203 @@ from hstest.stage_test import *
 from hstest.test_case import TestCase
 
 
-class Unit:
-    def __init__(self, isExecutable: bool, separator: str, command: str, expectedResult: str, feedback: str):
-        self.isExecutable = isExecutable
-        self.separator = separator
-        self.command = command
+class Input:
+    def __init__(self, string: str):
+        self.command = string
+
+
+class Output:
+    def __init__(self, expectedResult: str, feedback: str):
         self.expectedResult = expectedResult
         self.feedback = feedback
 
-    def input(self) -> str:
-        if self.isExecutable:
-            return self.command + self.separator
-        else:
-            return ""
 
-    def output(self) -> str:
-        return self.expectedResult + self.separator
+class Test:
+    def __init__(self, commandSeparator: str):
+        self.commandSeparator = commandSeparator
+        self.input: List[Input] = []
+        self.output: List[Output] = []
+        self.order: List[int] = []
+
+    def append(self, unit: any):
+        if isinstance(unit, Input):
+            self.input.append(unit)
+            self.order.append(0)
+        elif isinstance(unit, Output):
+            self.output.append(unit)
+            self.order.append(1)
+        else:
+            raise Exception(f"given type {type(unit)} is not supported")
+
+    def compileInput(self) -> str:
+        re = ""
+        for v in self.input:
+            re += v.command + self.commandSeparator
+        return re
+
+    def compileOutput(self) -> str:
+        re = ""
+        for v in self.output:
+            re += v.expectedResult
+        return re
 
 
 class Result:
-    def __init__(self, isOk: bool, expected: str, got: str, feedback: str):
-        self.isOk = isOk
+    def isOk(self) -> bool:
+        raise NotImplementedError
+
+    def toString(self) -> str:
+        raise NotImplementedError
+
+
+class Pass(Result):
+    def isOk(self) -> bool:
+        return True
+
+    def toString(self) -> str:
+        return "You've passed!"
+
+
+class Fail(Result):
+    def __init__(self, expected: str, got: str, feedback: str):
         self.expected = expected
         self.got = got
         self.feedback = feedback
 
-    def format(self) -> str:
-        if self.isOk:
-            return "You've passed!"
-        else:
-            return f"{self.feedback}\n" \
-                   f"\n" \
-                   f"Expected to find:\n" \
-                   f'"{self.expected}"\n' \
-                   f"in:\n" \
-                   f'"{self.got}"\n'
+    def isOk(self) -> bool:
+        return False
+
+    def toString(self) -> str:
+        return f"{self.feedback}\n" \
+               f"\n" \
+               f"Expected to find:\n" \
+               f'"{self.expected}"\n' \
+               f"in:\n" \
+               f'"{self.got}"\n'
+
+
+class Tester:
+    def tests(self) -> List[Test]:
+        raise NotImplementedError
+
+    def check(self, test: Test, userOutput: str) -> Result:
+        raise NotImplementedError
 
 
 class New:
     def __init__(self, separator: str):
-        self.separator = separator
+        self._separator = separator
 
-    def command(self, command: str, result: str, feedback: str) -> Unit:
-        return Unit(True, self.separator, command, result, feedback)
+    def test(self) -> Test:
+        return Test(self._separator)
 
-    def prompt(self, result: str, feedback: str) -> Unit:
-        return Unit(False, self.separator, "", result, feedback)
-
-
-class Checker:
-    def check(self, units: List[Unit], userOutput: str) -> Result:
-        raise NotImplementedError
+    def testFromList(self, units: List[any]) -> Test:
+        t = self.test()
+        for u in units:
+            t.append(u)
+        return t
 
 
-class MainChecker(Checker):
-    def check(self, units: List[Unit], userOutput: str) -> Result:
+class Main(Tester):
+    def __init__(self):
+        self._as = "\n "
+        self._threshold = 2
+        self._tests = self._generate()
+
+    @staticmethod
+    def randomString() -> str:
+        alphabet = string.ascii_letters + string.digits + " "
+        a = "".join(rand.choices(alphabet, k=rand.randrange(5, 10, 1)))
+        b = "".join(rand.choices(alphabet + " ", k=rand.randrange(10, 100, 1)))
+        return a + b
+
+    def _generate(self) -> List[Test]:
+        new = New("\n")
+
+        prompt_WaitingForUserInput = Output("Enter command and data: ", "Please verify the correctness of the program."
+                                                                        "\nTip: The program should ask user for a command")
+        feedback_command = "Please verify the correctness of the program. " \
+                           "\nTip: The program should print back ONLY the given command and no more."
+        feedback_bye = "Please verify the correctness of the program." \
+                       "\nTip: The program should print the farewell message to the user upon its shutdown"
+
+        tests = [
+            new.testFromList([
+                prompt_WaitingForUserInput,
+                Input("create This is my first record!"), Output("create", feedback_command),
+                prompt_WaitingForUserInput,
+                Input("create This is my second record!"), Output("create", feedback_command),
+                prompt_WaitingForUserInput,
+                Input("list"), Output("list", feedback_command),
+                prompt_WaitingForUserInput,
+                Input("exit 1098"), Output("Bye!", feedback_bye)
+            ])
+        ]
+
+        for i in range(2):
+            test = new.test()
+            for j in range(rand.randrange(1 + 2 * i, 3 + 2 * i)):
+                test.append(prompt_WaitingForUserInput)
+                rs = self.randomString().partition(' ')
+                test.append(Input(f"{rs[0]} {rs[2]}"))
+                test.append(Output(f"{rs[0]}", feedback_command))
+
+            test.append(prompt_WaitingForUserInput)
+            test.append(Input(f"exit {self.randomString()}"))
+            test.append(Output("Bye!", feedback_bye))
+            tests.append(test)
+
+        return tests
+
+    def tests(self) -> List[Test]:
+        return self._tests
+
+    def check(self, test: Test, userOutput: str) -> Result:
         remainingUserOutput = userOutput
         index = 0
 
         while True:
-            u = units[index]
-            i = remainingUserOutput.find(u.expectedResult)
-
+            o = test.output[index]
+            i = remainingUserOutput.find(o.expectedResult)
             if i == -1:
-                return Result(False, u.expectedResult, remainingUserOutput, u.feedback)
+                return Fail(o.expectedResult, remainingUserOutput, o.feedback)
+
+            j = 0
+            th = 0
+            while j < i:
+                if remainingUserOutput[j] not in self._as:
+                    th += 1
+                    if th > self._threshold:
+                        return Fail(o.expectedResult, remainingUserOutput, o.feedback + \
+                                    "\nThis error might be caused by unacceptable string formatting."
+                                    "\nPlease verify the string formatting and remove redundant symbols")
+                j += 1
+
             index += 1
+            if index >= len(test.output):
+                return Pass()
 
-            if index >= len(units):
-                return Result(True, "", "", "")
-
-            remainingUserOutput = remainingUserOutput[i:]
-
-
-class Case:
-    def __init__(self, checker: Checker, units: List[Unit]):
-        self.units = units
-        self.checker = checker
-
-    def input(self) -> str:
-        s = ""
-        for u in self.units:
-            s += u.input()
-        return s
-
-    def output(self) -> str:
-        s = ""
-        for u in self.units:
-            s += u.output()
-        return s
-
-    def check(self, userOutput: str) -> Result:
-        return self.checker.check(self.units, userOutput)
+            remainingUserOutput = remainingUserOutput[i + len(o.expectedResult):]
 
 
-class HSTest(StageTest):
-    def __init__(self, cases: List[Case]):
-        super(HSTest, self).__init__()
-        self.cases = cases
+class HSAdapter(StageTest):
+    def __init__(self, tester: Tester):
+        super(HSAdapter, self).__init__()
+        self.tester = tester
 
     def generate(self) -> List[TestCase]:
-        cases = []
-        for case in self.cases:
-            cases.append((case.input(), case.output()))
-        return TestCase.from_stepik(cases)
+        ts = []
+        for test in self.tester.tests():
+            ts.append((test.compileInput(), test.compileOutput()))
+        return TestCase.from_stepik(ts)
 
     def check(self, user_answer: str, correct_answer: Any) -> CheckResult:
-        for case in self.cases:
-            if correct_answer == case.output():
-                result = case.check(user_answer)
-                return CheckResult(result.isOk, result.format())
-
-
-def randomString() -> str:
-    alphabet = string.ascii_letters + string.digits + " "
-    a = "".join(rand.choices(alphabet, k=rand.randrange(5, 10, 1)))
-    b = "".join(rand.choices(alphabet + " ", k=rand.randrange(10, 100, 1)))
-    return a + b
-
-
-def main():
-    new = New("\n")
-    checker = MainChecker()
-
-    prompt_WaitingForUserInput = new.prompt("Enter command and data: ", "The program should ask user for a command")
-
-    cases = [
-        Case(checker, [
-            prompt_WaitingForUserInput,
-            new.command("create This is my first record!", "create", ""),
-            prompt_WaitingForUserInput,
-            new.command("create This is my second record!", "create", ""),
-            prompt_WaitingForUserInput,
-            new.command("list", "list", ""),
-            prompt_WaitingForUserInput,
-            new.command("exit 1098", "Bye!", ""),
-        ])
-    ]
-
-    for i in range(2):
-        units = []
-
-        for j in range(rand.randrange(1 + 2 * i, 3 + 2 * i)):
-            units.append(prompt_WaitingForUserInput)
-            rs = randomString().partition(' ')
-            units.append(new.command(f"{rs[0]} {rs[2]}", f"{rs[0]}", ""))
-
-        units.append(prompt_WaitingForUserInput)
-        units.append(new.command(f"exit {randomString()}", "Bye!", ""))
-        cases.append(Case(checker, units))
-
-    test = HSTest(cases)
-    test.run_tests()
+        for test in self.tester.tests():
+            if correct_answer == test.compileOutput():
+                result = self.tester.check(test, user_answer)
+                return CheckResult(result.isOk(), result.toString())
 
 
 if __name__ == '__main__':
-    main()
+    main = Main()
+    HSAdapter(main).run_tests()

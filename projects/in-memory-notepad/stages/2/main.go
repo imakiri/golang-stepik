@@ -48,7 +48,7 @@ func main() {
 			}
 			fmt.Print("[OK] All notes were successfully deleted\n")
 		default:
-			fmt.Println("[Error] unknown command")
+			fmt.Println("[Error] Unknown command")
 		}
 	}
 }
