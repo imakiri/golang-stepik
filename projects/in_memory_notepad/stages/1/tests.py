@@ -1,7 +1,8 @@
 import random as rand
 import string
 
-from testlib import *
+from projects.in_memory_notepad.testlib.testlib import *
+from projects.in_memory_notepad.data.data import *
 
 
 class Main(DefaultTester):
@@ -18,13 +19,6 @@ class Main(DefaultTester):
 
     def _generate(self) -> list[Test]:
         new = New("\n")
-
-        Output_WaitingForUserInput = Output(
-            "Enter command and data: ",
-            "The program should ask user for a command")
-
-        feedback_command = "The program should print back ONLY the given command and no more."
-        feedback_bye = "The program should print the farewell message to the user upon its shutdown"
 
         tests = [
             new.testFromList([

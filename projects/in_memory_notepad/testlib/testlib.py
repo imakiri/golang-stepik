@@ -1,4 +1,6 @@
+from __future__ import annotations
 import string
+from copy import copy
 
 from hstest.stage_test import *
 from hstest.test_case import TestCase
@@ -13,6 +15,15 @@ class Output:
     def __init__(self, expectedResult: str, feedback: str):
         self.expectedResult = expectedResult
         self.feedback = feedback
+
+    def __copy__(self):
+        return type(self)(self.expectedResult, self.feedback)
+
+    def append(self, additionalFeedback: str) -> Output:
+        co = copy(self)
+        co.feedback += "\n"
+        co.feedback += additionalFeedback
+        return co
 
 
 class Test:
@@ -123,7 +134,7 @@ class DefaultTester(Tester):
                     th += 1
                     if th > self.threshold:
                         return Fail(o.expectedResult, remainingUserOutput, o.feedback + \
-                                    "\nThis error might be caused by unacceptable string formatting."
+                                    "\nThis error might be caused by an unacceptable string formatting."
                                     "\nPlease verify the string formatting and remove redundant symbols."
                                     f"\nError index: {testIndex}.{index}")
                 j += 1
