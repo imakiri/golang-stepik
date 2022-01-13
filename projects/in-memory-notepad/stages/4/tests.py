@@ -41,6 +41,8 @@ class Main(DefaultTester):
 
         tests = [
             new.testFromList([
+                Output_WaitingForMaxNum,
+                Input("5"),
                 Output_WaitingForUserInput,
                 Input("create This is my first record!"),
                 Output_NoteCreated,
