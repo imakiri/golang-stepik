@@ -23,48 +23,59 @@ class Main(DefaultTester):
         tests = [
             new.testFromList([
                 Output_WaitingForMaxNum,
-                Input("5"),
+                Input("3"),
+
                 Output_WaitingForUserInput,
                 Input("create This is my first record!"),
                 Output_NoteCreated,
+
                 Output_WaitingForUserInput,
                 Input("create This is my second record!"),
                 Output_NoteCreated,
+
+                Output_WaitingForUserInput,
+                Input("get 1"),
+                Output_UnknownCommand,
+
+                Output_WaitingForUserInput,
+                Input("create          "),
+                Output_EmptyNote,
+
+                Output_WaitingForUserInput,
+                Input("create"),
+                Output_EmptyNote,
+
                 Output_WaitingForUserInput,
                 Input("list"),
                 Output("Index 0: This is my first record!", ""),
                 Output("Index 1: This is my second record!", ""),
                 Output("Index 2:", ""),
-                Output("Index 3:", ""),
-                Output("Index 4:", ""),
+
                 Output_WaitingForUserInput,
                 Input("create This is my third record!"),
                 Output_NoteCreated,
+
                 Output_WaitingForUserInput,
                 Input("create This is my forth record!"),
-                Output_NoteCreated,
-                Output_WaitingForUserInput,
-                Input("create This is my fifth record!"),
-                Output_NoteCreated,
-                Output_WaitingForUserInput,
-                Input("create This is my sixth record!"),
                 Output_ListFull,
+
                 Output_WaitingForUserInput,
                 Input("clear"),
                 Output_ListCleared,
+
                 Output_WaitingForUserInput,
-                Input("create This is my sixth record!"),
+                Input("create This is my forth record!"),
                 Output_NoteCreated,
+
                 Output_WaitingForUserInput,
                 Input("list"),
-                Output("Index 0: This is my sixth record!\n", ""),
+                Output("Index 0: This is my forth record!\n", ""),
                 Output("Index 1:", ""),
                 Output("Index 2:", ""),
-                Output("Index 3:", ""),
-                Output("Index 4:", ""),
+
                 Output_WaitingForUserInput,
                 Input("exit"),
-                Output("Bye!", feedback_bye)
+                Output_Bye
             ])
         ]
 

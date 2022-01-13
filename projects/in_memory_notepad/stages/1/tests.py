@@ -25,15 +25,18 @@ class Main(DefaultTester):
                 Output_WaitingForUserInput,
                 Input("create This is my first record!"),
                 Output("create", feedback_command),
+
                 Output_WaitingForUserInput,
                 Input("create This is my second record!"),
                 Output("create", feedback_command),
+
                 Output_WaitingForUserInput,
                 Input("list"),
                 Output("list", feedback_command),
+
                 Output_WaitingForUserInput,
                 Input("exit 1098"),
-                Output("Bye!", feedback_bye)
+                Output_Bye
             ])
         ]
 
@@ -47,7 +50,7 @@ class Main(DefaultTester):
 
             test.append(Output_WaitingForUserInput)
             test.append(Input(f"exit {self.randomString()}"))
-            test.append(Output("Bye!", feedback_bye))
+            test.append(Output_Bye)
             tests.append(test)
 
         return tests

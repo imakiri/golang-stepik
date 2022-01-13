@@ -125,7 +125,7 @@ class DefaultTester(Tester):
             o = test.output[index]
             i = remainingUserOutput.find(o.expectedResult)
             if i == -1:
-                return Fail(o.expectedResult, remainingUserOutput, o.feedback)
+                return Fail(o.expectedResult, remainingUserOutput, o.feedback + f"\nError index: {testIndex}.{index}")
 
             j = 0
             th = 0

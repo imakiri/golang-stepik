@@ -40,11 +40,18 @@ func main() {
 				fmt.Print("[Error] The list of notes is full\n")
 				continue
 			}
-			if input[1] == "" {
+			if len(input) < 2 {
 				fmt.Print("[Error] The note cannot be empty\n")
 				continue
 			}
-			storage[index] = input[1]
+
+			var note = strings.TrimSpace(input[1])
+			if note == "" {
+				fmt.Print("[Error] The note cannot be empty\n")
+				continue
+			}
+
+			storage[index] = note
 			index++
 			fmt.Print("[OK] The note was successfully created\n")
 		case "list":

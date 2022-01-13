@@ -25,9 +25,11 @@ class Main(DefaultTester):
                 Output_WaitingForUserInput,
                 Input("create This is my first record!"),
                 Output_NoteCreated,
+
                 Output_WaitingForUserInput,
                 Input("create This is my second record!"),
                 Output_NoteCreated,
+
                 Output_WaitingForUserInput,
                 Input("list"),
                 Output("Index 0: This is my first record!", ""),
@@ -35,24 +37,31 @@ class Main(DefaultTester):
                 Output("Index 2:", ""),
                 Output("Index 3:", ""),
                 Output("Index 4:", ""),
+
                 Output_WaitingForUserInput,
                 Input("create This is my third record!"),
                 Output_NoteCreated,
+
                 Output_WaitingForUserInput,
                 Input("create This is my forth record!"),
                 Output_NoteCreated,
+
                 Output_WaitingForUserInput,
                 Input("create This is my fifth record!"),
                 Output_NoteCreated,
+
                 Output_WaitingForUserInput,
                 Input("create This is my sixth record!"),
                 Output_ListFull,
+
                 Output_WaitingForUserInput,
                 Input("clear"),
                 Output_ListCleared,
+
                 Output_WaitingForUserInput,
                 Input("create This is my sixth record!"),
                 Output_NoteCreated,
+
                 Output_WaitingForUserInput,
                 Input("list"),
                 Output("Index 0: This is my sixth record!\n", ""),
@@ -60,9 +69,10 @@ class Main(DefaultTester):
                 Output("Index 2:", ""),
                 Output("Index 3:", ""),
                 Output("Index 4:", ""),
+
                 Output_WaitingForUserInput,
                 Input("exit"),
-                Output("Bye!", feedback_bye)
+                Output_Bye
             ])
         ]
 
