@@ -29,7 +29,6 @@ func main() {
 				fmt.Print("[Error] The list of notes is full\n")
 				continue
 			}
-
 			storage[index] = input[1]
 			index++
 			fmt.Print("[OK] The note was successfully created\n")

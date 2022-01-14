@@ -34,6 +34,13 @@ Output_Bye = Output(
 )
 
 feedback_command = "The program should print back ONLY the given command and no more."
+feedback_noteUpdated = "The program should inform the user about the successful update of the note"
+feedback_noteDeleted = "The program should inform the user about the successful deletion of the note"
 
-def message_deleted(index: int):
+
+def message_noteUpdated(index: int) -> str:
+    return f"[OK] The note at index {index} was successfully updated"
+
+
+def message_noteDeleted(index: int) -> str:
     return f"[OK] The note at index {index} was successfully deleted"

@@ -17,7 +17,7 @@ func main() {
 
 	var size, err = strconv.Atoi(scanner.Text())
 	if err != nil {
-	    fmt.Print(err)
+		fmt.Print(err)
 		return
 	}
 
@@ -104,5 +104,3 @@ func main() {
 		}
 	}
 }
-
-
