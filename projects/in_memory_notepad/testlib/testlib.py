@@ -53,6 +53,24 @@ class Test:
             re += v.expectedResult
         return re
 
+    def tracebackInput(self, outputIndex: int) -> list[Input]:
+        l: list[Input] = []
+        i = 0
+        o = 0
+        n = 0
+        while o < outputIndex:
+            if self.order[n] == 0:
+                i += 1
+            if self.order[n] == 1:
+                o += 1
+            n += 1
+
+        for j in range(i, -1, -1):
+            l.append(self.input[j])
+
+        return l
+
+
     def check(self, index: int, userOutput: str) -> Result:
         raise NotImplementedError
 

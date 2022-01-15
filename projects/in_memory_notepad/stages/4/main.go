@@ -8,6 +8,45 @@ import (
 	"strings"
 )
 
+func extractNote(input []string) (string, error) {
+	if len(input) < 2 {
+		return "", fmt.Errorf("[Error] Missing note argument\n")
+	}
+
+	var note = strings.TrimSpace(input[1])
+	if note == "" {
+		return "", fmt.Errorf("[Error] Missing note argument\n")
+	}
+
+	return note, nil
+}
+
+func extractIndex(index int, size int, input []string) (int, []string, error) {
+	if len(input) < 2 {
+		return 0, nil, fmt.Errorf("[Error] Missing index argument\n")
+	}
+
+	var data = strings.SplitN(input[1], " ", 2)
+	var i, err = strconv.Atoi(data[0])
+	switch {
+	case err != nil:
+	    var strIndex = strings.TrimSpace(data[0])
+	    if strIndex == "" {
+	        return 0, nil, fmt.Errorf("[Error] Missing index argument\n")
+	    }
+		return 0, nil, fmt.Errorf("[Error] Invalid index: %s\n", data[0])
+	case !(0 <= i && i < size):
+		return 0, nil, fmt.Errorf("[Error] Index %d is out of the boundary [0, %d)\n", i, size)
+	case i > index:
+		return 0, nil, fmt.Errorf("[Error] There is nothing to update\n")
+	case i <= index:
+		return i, data, nil
+	default:
+		return 0, nil, fmt.Errorf("[Error] Internal error occurred")
+	}
+}
+
+
 func main() {
 	var scanner = bufio.NewScanner(os.Stdin)
 	fmt.Print("Enter the maximum number of notes: ")
@@ -34,20 +73,15 @@ func main() {
 		switch input[0] {
 		case "exit":
 			exe = false
-			fmt.Print("Bye!\n")
+			fmt.Print("[Info] Bye!\n")
 		case "create":
 			if index >= size {
-				fmt.Print("[Error] The list of notes is full\n")
+				fmt.Print("[Error] Notepad is full\n")
 				continue
 			}
-			if len(input) < 2 {
-				fmt.Print("[Error] The note cannot be empty\n")
-				continue
-			}
-
-			var note = strings.TrimSpace(input[1])
-			if note == "" {
-				fmt.Print("[Error] The note cannot be empty\n")
+			var note, err = extractNote(input)
+			if err != nil {
+				fmt.Print(err)
 				continue
 			}
 
@@ -55,44 +89,45 @@ func main() {
 			index++
 			fmt.Print("[OK] The note was successfully created\n")
 		case "list":
+		    var c int
 			for i, v := range storage {
-				fmt.Printf("Index %d: %s\n", i, v)
+			    if v != "" {
+			        c++
+			        fmt.Printf("[Info] Index %d: %s\n", i, v)
+			    }
+			}
+			if c == 0 {
+			    fmt.Println("[Info] Notepad is empty")
 			}
 			continue
 		case "update":
-			var data = strings.SplitN(input[1], " ", 2)
-			var i, err = strconv.Atoi(data[0])
+			var i, data, err = extractIndex(index, size, input)
 			if err != nil {
-				fmt.Printf("[Error] Invalid index: %s\n", data[0])
-			} else if !(0 <= i && i < size) {
-				fmt.Printf("[Error] Index %d is out of the boundary [0, %d)\n", i, size)
-			} else if i > index {
-				fmt.Println("[Error] There is nothing to update")
-			} else if i <= index {
-				storage[i] = data[1]
-				fmt.Printf("[OK] The note at index %d was successfully updated\n", i)
-			} else {
-				fmt.Println("[Error] Internal error occurred")
+				fmt.Print(err)
+				continue
 			}
-			continue
+
+			var note, e = extractNote(data)
+			if e != nil {
+				fmt.Print(e)
+				continue
+			}
+
+			storage[i] = note
+			fmt.Printf("[OK] The note at index %d was successfully updated\n", i)
 		case "delete":
-			var i, err = strconv.Atoi(input[1])
+			var i, _ , err = extractIndex(index, size, input)
 			if err != nil {
-				fmt.Printf("[Error] Invalid index: %s\n", input[1])
-			} else if !(0 <= i && i < size) {
-				fmt.Printf("[Error] Index %d is out of the boundary [0, %d)\n", i, size)
-			} else if i < index {
-				for j := i; j < index; j++ {
-					storage[j] = storage[j+1]
-				}
-				storage[index] = ""
-				index--
-				fmt.Printf("[OK] The note at index %d was successfully deleted\n", i)
-			} else if i >= index {
-				fmt.Println("[Error] There is nothing to delete")
-			} else {
-				fmt.Println("[Error] Internal error occurred")
+				fmt.Print(err)
+				continue
 			}
+
+			for j := i; j < index; j++ {
+				storage[j] = storage[j+1]
+			}
+			storage[index] = ""
+			index--
+			fmt.Printf("[OK] The note at index %d was successfully deleted\n", i)
 		case "clear":
 			index = 0
 			for i := range storage {

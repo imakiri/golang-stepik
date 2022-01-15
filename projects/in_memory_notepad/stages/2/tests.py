@@ -18,55 +18,73 @@ def generate() -> list[Test]:
 
     tests.append(TestMain().appendList([
         Output_WaitingForUserInput,
-        Input("create This is my first record!"),
+        Input_Create("This is my first record!"),
         Output_NoteCreated,
 
         Output_WaitingForUserInput,
-        Input("create This is my second record!"),
-        Output_NoteCreated,
+        Input_List,
+        Output_Note(0, "This is my first record!"),
 
-        Output_WaitingForUserInput,
-        Input("list"),
-        Output("Index 0: This is my first record!", ""),
-        Output("Index 1: This is my second record!", ""),
-        Output("Index 2:", ""),
-        Output("Index 3:", ""),
-        Output("Index 4:", ""),
-
-        Output_WaitingForUserInput,
-        Input("create This is my third record!"),
-        Output_NoteCreated,
-
-        Output_WaitingForUserInput,
-        Input("create This is my forth record!"),
-        Output_NoteCreated,
-
-        Output_WaitingForUserInput,
-        Input("create This is my fifth record!"),
-        Output_NoteCreated,
-
-        Output_WaitingForUserInput,
-        Input("create This is my sixth record!"),
-        Output_ListFull,
-
-        Output_WaitingForUserInput,
-        Input("clear"),
+        Output_WaitingForUserInput.append(feedback_printingEmptyNotes),
+        Input_Clear,
         Output_ListCleared,
 
         Output_WaitingForUserInput,
-        Input("create This is my sixth record!"),
+        Input_List,
+        Output("", ""),
+
+        Output_WaitingForUserInput,
+        Input_Exit,
+        Output_Bye
+    ]))
+
+    tests.append(TestMain().appendList([
+        Output_WaitingForUserInput,
+        Input_Create("This is my first record!"),
         Output_NoteCreated,
 
         Output_WaitingForUserInput,
-        Input("list"),
-        Output("Index 0: This is my sixth record!\n", ""),
-        Output("Index 1:", ""),
-        Output("Index 2:", ""),
-        Output("Index 3:", ""),
-        Output("Index 4:", ""),
+        Input_Create("This is my second record!"),
+        Output_NoteCreated,
 
         Output_WaitingForUserInput,
-        Input("exit"),
+        Input_Create("This is my third record!"),
+        Output_NoteCreated,
+
+        Output_WaitingForUserInput,
+        Input_Create("This is my forth record!"),
+        Output_NoteCreated,
+
+        Output_WaitingForUserInput,
+        Input_Create("This is my fifth record!"),
+        Output_NoteCreated,
+
+        Output_WaitingForUserInput,
+        Input_Create("This is my sixth record!"),
+        Output_ListFull,
+
+        Output_WaitingForUserInput,
+        Input_List,
+        Output_Note(0, "This is my first record!"),
+        Output_Note(1, "This is my second record!"),
+        Output_Note(2, "This is my third record!"),
+        Output_Note(3, "This is my forth record!"),
+        Output_Note(4, "This is my fifth record!"),
+
+        Output_WaitingForUserInput,
+        Input_Clear,
+        Output_ListCleared,
+
+        Output_WaitingForUserInput,
+        Input_Create("This is my sixth record!"),
+        Output_NoteCreated,
+
+        Output_WaitingForUserInput,
+        Input_List,
+        Output_Note(0, "This is my sixth record!"),
+
+        Output_WaitingForUserInput,
+        Input_Exit,
         Output_Bye
     ]))
 

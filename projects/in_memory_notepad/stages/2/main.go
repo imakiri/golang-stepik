@@ -23,10 +23,10 @@ func main() {
 		switch input[0] {
 		case "exit":
 			exe = false
-			fmt.Print("Bye!\n")
+			fmt.Print("[Info] Bye!\n")
 		case "create":
 			if index >= size {
-				fmt.Print("[Error] The list of notes is full\n")
+				fmt.Print("[Error] Notepad is full\n")
 				continue
 			}
 			storage[index] = input[1]
@@ -34,7 +34,9 @@ func main() {
 			fmt.Print("[OK] The note was successfully created\n")
 		case "list":
 			for i, v := range storage {
-				fmt.Printf("Index %d: %s\n", i, v)
+			    if v != "" {
+			        fmt.Printf("[Info] Index %d: %s\n", i, v)
+			    }
 			}
 			continue
 		case "clear":

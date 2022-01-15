@@ -20,7 +20,7 @@ func main() {
 		switch input[0] {
 		case "exit":
 			exe = false
-			fmt.Print("Bye!\n")
+			fmt.Print("[Info] Bye!\n")
 		default:
 			fmt.Println(input[0])
 		}

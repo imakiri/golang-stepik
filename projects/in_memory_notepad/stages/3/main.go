@@ -34,20 +34,20 @@ func main() {
 		switch input[0] {
 		case "exit":
 			exe = false
-			fmt.Print("Bye!\n")
+			fmt.Print("[Info] Bye!\n")
 		case "create":
 			if index >= size {
-				fmt.Print("[Error] The list of notes is full\n")
+				fmt.Print("[Error] Notepad is full\n")
 				continue
 			}
 			if len(input) < 2 {
-				fmt.Print("[Error] The note cannot be empty\n")
+				fmt.Print("[Error] Missing note argument\n")
 				continue
 			}
 
 			var note = strings.TrimSpace(input[1])
 			if note == "" {
-				fmt.Print("[Error] The note cannot be empty\n")
+				fmt.Print("[Error] Missing note argument\n")
 				continue
 			}
 
@@ -55,8 +55,15 @@ func main() {
 			index++
 			fmt.Print("[OK] The note was successfully created\n")
 		case "list":
+		    var c int
 			for i, v := range storage {
-				fmt.Printf("Index %d: %s\n", i, v)
+			    if v != "" {
+			        c++
+			        fmt.Printf("[Info] Index %d: %s\n", i, v)
+			    }
+			}
+			if c == 0 {
+			    fmt.Println("[Info] Notepad is empty")
 			}
 			continue
 		case "clear":

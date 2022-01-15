@@ -21,55 +21,82 @@ def generate() -> list[Test]:
         Input("3"),
 
         Output_WaitingForUserInput,
-        Input("create This is my first record!"),
+        Input_List,
+        Output_ListEmpty.append(feedback_printingEmptyNotes),
+
+        Output_WaitingForUserInput,
+        Input_Create("This is my first record!"),
         Output_NoteCreated,
 
         Output_WaitingForUserInput,
-        Input("create This is my second record!"),
-        Output_NoteCreated,
+        Input_List,
+        Output_Note(0, "This is my first record!"),
+
+        Output_WaitingForUserInput,
+        Input_Clear,
+        Output_ListCleared,
+
+        Output_WaitingForUserInput,
+        Input_List,
+        Output_ListEmpty,
+
+        Output_WaitingForUserInput,
+        Input_Exit,
+        Output_Bye
+    ]))
+
+    tests.append(TestMain().appendList([
+        Output_WaitingForMaxNum,
+        Input("3"),
+
+        Output_WaitingForUserInput,
+        Input("create          "),
+        Output_MissingNote,
+
+        Output_WaitingForUserInput,
+        Input("create"),
+        Output_MissingNote,
 
         Output_WaitingForUserInput,
         Input("get 1"),
         Output_UnknownCommand,
 
         Output_WaitingForUserInput,
-        Input("create          "),
-        Output_EmptyNote,
-
-        Output_WaitingForUserInput,
-        Input("create"),
-        Output_EmptyNote,
-
-        Output_WaitingForUserInput,
-        Input("list"),
-        Output("Index 0: This is my first record!", ""),
-        Output("Index 1: This is my second record!", ""),
-        Output("Index 2:", ""),
-
-        Output_WaitingForUserInput,
-        Input("create This is my third record!"),
+        Input_Create("This is my first record!"),
         Output_NoteCreated,
 
         Output_WaitingForUserInput,
-        Input("create This is my forth record!"),
+        Input_Create("This is my second record!"),
+        Output_NoteCreated,
+
+        Output_WaitingForUserInput,
+        Input_Create("This is my third record!"),
+        Output_NoteCreated,
+
+        Output_WaitingForUserInput,
+        Input_Create("This is my forth record!"),
         Output_ListFull,
 
         Output_WaitingForUserInput,
-        Input("clear"),
+        Input_List,
+        Output_Note(0, "This is my first record!"),
+        Output_Note(1, "This is my second record!"),
+        Output_Note(2, "This is my third record!"),
+
+        Output_WaitingForUserInput,
+        Input_Clear,
         Output_ListCleared,
 
         Output_WaitingForUserInput,
-        Input("create This is my forth record!"),
+        Input_Create("This is my forth record!"),
         Output_NoteCreated,
 
         Output_WaitingForUserInput,
-        Input("list"),
-        Output("Index 0: This is my forth record!\n", ""),
-        Output("Index 1:", ""),
-        Output("Index 2:", ""),
+        Input_List,
+        Output_Note(0, "This is my forth record!"),
 
         Output_WaitingForUserInput,
-        Input("exit"),
+        Input_Exit,
         Output_Bye
     ]))
 

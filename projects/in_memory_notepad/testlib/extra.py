@@ -10,40 +10,42 @@ class Pass(Result):
 
 
 class Fail(Result):
-    def __init__(self, expected: str, got: str, feedback: str, index: int, indexCase: int):
-        self.expected = expected
+    def __init__(self, output: Output, got: str, indexTest: int, indexCase: int, traceInput: list[Input]):
+        self.output = output
         self.got = got
-        self.feedback = feedback
-        self.index = index
+        self.traceInput = traceInput
+        self.indexTest = indexTest
         self.indexCase = indexCase
+        self.l = 2 * len(output.expectedResult) + 1
+        self.l = self.l if self.l < len(got) else len(got) - 1
 
     def isOk(self) -> bool:
         return False
 
     def toString(self) -> str:
-        return f"{self.feedback}\n" \
-               f"\n" \
+        return f'When executing "{self.traceInput[0].command}"\n' \
                f"Expected to find:\n" \
-               f'"{self.expected}"\n' \
+               f'"{self.output.expectedResult}"\n' \
                f"in:\n" \
-               f'"{self.got}"\n' \
-               f"Error index: {self.index}.{self.indexCase}\n"
+               f'"{self.got[:self.l]}..."\n' \
+               f"{self.output.feedback}\n" \
+               f"Error index: {self.indexTest}.{self.indexCase}\n"
 
 
-class FailFormatting(Fail):
-    def __init__(self, expected: str, got: str, feedback: str, index: int, indexCase: int):
-        super(FailFormatting, self).__init__(expected, got, feedback, index, indexCase)
+class FailFormatting(Result):
+    def __init__(self, output: Output, got: str, indexTest: int, indexCase: int, traceInput: list[Input]):
+        super(FailFormatting, self).__init__(output, got, indexTest, indexCase, traceInput)
 
     def toString(self) -> str:
-        return f"{self.feedback}\n" \
-               f"\n" \
+        return f'When executing "{self.traceInput[0].command}"\n' \
                f"Expected to find:\n" \
-               f'"{self.expected}"\n' \
+               f'"{self.output.expectedResult}"\n' \
                f"in:\n" \
-               f'"{self.got}"\n' \
+               f'"{self.got[:self.l]}..."\n' \
+               f"{self.output.feedback}\n" \
                f"This error might be caused by an unacceptable string formatting.\n" \
                f"Please verify the string formatting and remove redundant symbols.\n" \
-               f"Error index: {self.index}.{self.indexCase}\n"
+               f"Error index: {self.indexTest}.{self.indexCase}\n"
 
 
 class TestMain(Test):
@@ -60,9 +62,7 @@ class TestMain(Test):
             o = self.output[indexCase]
             i = remainingUserOutput.find(o.expectedResult)
             if i == -1:
-                l = 2 * len(o.expectedResult) + 1
-                l = l if l < len(remainingUserOutput) else len(remainingUserOutput) - 1
-                return Fail(o.expectedResult, remainingUserOutput[:l], o.feedback, index, indexCase)
+                return Fail(o, remainingUserOutput, index, indexCase, self.tracebackInput(indexCase))
 
             j = 0
             th = 0
@@ -70,9 +70,7 @@ class TestMain(Test):
                 if remainingUserOutput[j] not in self.acceptedSymbols:
                     th += 1
                     if th > self.threshold:
-                        l = 2 * len(o.expectedResult) + 1
-                        l = l if l < len(remainingUserOutput) else len(remainingUserOutput) - 1
-                        return FailFormatting(o.expectedResult, remainingUserOutput[:l], o.feedback, index, indexCase)
+                        return FailFormatting(o, remainingUserOutput, index, indexCase, self.tracebackInput(indexCase))
                 j += 1
 
             indexCase += 1
