@@ -57,6 +57,18 @@ def generate() -> list[Test]:
         Output_Note(0, "Updated first note!"),
 
         Output_WaitingForUserInput,
+        Input("delete zero"),
+        Output_InvalidIndex("zero"),
+
+        Output_WaitingForUserInput,
+        Input("delete   "),
+        Output_MissingIndex,
+
+        Output_WaitingForUserInput,
+        Input("delete"),
+        Output_MissingIndex,
+
+        Output_WaitingForUserInput,
         Input_Delete(0),
         Output_Deleted(0),
 
