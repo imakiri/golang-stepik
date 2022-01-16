@@ -22,7 +22,7 @@ def generate() -> list[Test]:
 
         Output_WaitingForUserInput,
         Input_List,
-        Output_ListEmpty.append(feedback_printingEmptyNotes),
+        Output_ListEmpty,
 
         Output_WaitingForUserInput,
         Input_Create("This is my first record!"),

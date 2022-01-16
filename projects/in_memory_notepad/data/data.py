@@ -22,11 +22,11 @@ Output_MissingNote = Output(
 )
 Output_NothingToUpdate = Output(
     "[Error] There is nothing to update",
-    ""
+    "The program should inform the user when there is no note to update"
 )
 Output_NothingToDelete = Output(
     "[Error] There is nothing to delete",
-    ""
+    "The program should inform the user when there is no note to delete"
 )
 Output_ListFull = Output(
     "[Error] Notepad is full",
@@ -34,7 +34,7 @@ Output_ListFull = Output(
 )
 Output_ListEmpty = Output(
     "[Info] Notepad is empty",
-    ""
+    "The program should inform the user when there is no notes"
 )
 Output_ListCleared = Output(
     "[OK] All notes were successfully deleted",
@@ -50,10 +50,10 @@ Output_Bye = Output(
 )
 
 def Output_InvalidIndex(index: str) -> Output:
-    return Output(f"[Error] Invalid index: {index}", "")
+    return Output(f"[Error] Invalid index: {index}", "The program should inform the user when it cannot interpret the given index as an integer")
 
 def Output_IndexOutOfBoundaries(index: int, upper: int) -> Output:
-    return Output(f"[Error] Index {index} is out of the boundaries [0, {upper})", "")
+    return Output(f"[Error] Index {index} is out of the boundaries [0, {upper})", "The program should inform the user when the given index is out of the boundaries")
 
 def Output_Updated(index: int) -> Output:
     return Output(f"[OK] The note at index {index} was successfully updated", feedback_noteUpdated)

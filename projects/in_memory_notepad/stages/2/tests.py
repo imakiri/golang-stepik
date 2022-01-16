@@ -33,7 +33,7 @@ def generate() -> list[Test]:
         Input_List,
         Output("", ""),
 
-        Output_WaitingForUserInput,
+        Output_WaitingForUserInput.append(feedback_printingEmptyNotes),
         Input_Exit,
         Output_Bye
     ]))
