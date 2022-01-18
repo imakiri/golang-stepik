@@ -14,7 +14,7 @@ func main() {
 	var scanner = bufio.NewScanner(os.Stdin)
 	var exe = true
 	for exe {
-		fmt.Print("Enter command and data: ")
+		fmt.Print("\nEnter command and data: ")
 		if !scanner.Scan() {
 			return
 		}
@@ -35,7 +35,7 @@ func main() {
 		case "list":
 			for i, v := range storage {
 			    if v != "" {
-			        fmt.Printf("[Info] Index %d: %s\n", i, v)
+			        fmt.Printf("[Info] %d: %s\n", i+1, v)
 			    }
 			}
 			continue

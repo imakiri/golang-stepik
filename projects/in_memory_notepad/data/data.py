@@ -13,8 +13,8 @@ Output_NoteCreated = Output(
     "The program should inform the user about the successful creation of the note"
 )
 Output_MissingIndex = Output(
-    "[Error] Missing index argument",
-    "The program should inform the user when it can't find the index argument"
+    "[Error] Missing position argument",
+    "The program should inform the user when it can't find the position argument"
 )
 Output_MissingNote = Output(
     "[Error] Missing note argument",
@@ -50,21 +50,21 @@ Output_Bye = Output(
 )
 
 def Output_InvalidIndex(index: str) -> Output:
-    return Output(f"[Error] Invalid index: {index}", "The program should inform the user when it cannot interpret the given index as an integer")
+    return Output(f"[Error] Invalid position: {index}", "The program should inform the user when it cannot interpret the given position as an integer")
 
 def Output_IndexOutOfBoundaries(index: int, upper: int) -> Output:
-    return Output(f"[Error] Index {index} is out of the boundaries [0, {upper})", "The program should inform the user when the given index is out of the boundaries")
+    return Output(f"[Error] Position {index+1} is out of the boundaries [1, {upper}]", "The program should inform the user when the given position is out of the boundaries")
 
 def Output_Updated(index: int) -> Output:
-    return Output(f"[OK] The note at index {index} was successfully updated", feedback_noteUpdated)
+    return Output(f"[OK] The note at position {index+1} was successfully updated", feedback_noteUpdated)
 
 def Output_Deleted(index: int) -> Output:
-    return Output(f"[OK] The note at index {index} was successfully deleted", feedback_noteDeleted)
+    return Output(f"[OK] The note at position {index+1} was successfully deleted", feedback_noteDeleted)
 
 def Output_Note(index: int, value: str) -> Output:
-    return Output(f"[Info] Index {index}: {value}", "")
+    return Output(f"[Info] {index+1}: {value}", "")
 
-feedback_command = "The program should print back ONLY the given command and no more"
+feedback_command = "The program should print back only the given command and no more"
 feedback_printingEmptyNotes = "The program shouldn't print empty notes"
 feedback_noteUpdated = "The program should inform the user about the successful update of the note"
 feedback_noteDeleted = "The program should inform the user about the successful deletion of the note"
@@ -78,8 +78,8 @@ def Input_Create(value: str) -> Input:
     return Input(f"create {value}")
 
 def Input_Update(index: int, value: str) -> Input:
-    return Input(f"update {index} {value}")
+    return Input(f"update {index+1} {value}")
 
 def Input_Delete(index: int) -> Input:
-    return Input(f"delete {index}")
+    return Input(f"delete {index+1}")
 

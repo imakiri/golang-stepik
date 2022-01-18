@@ -41,8 +41,8 @@ class HSTests(HSAdapter):
             Output_MissingNote,
 
             Output_WaitingForUserInput,
-            Input("update zero Updated first note!"),
-            Output_InvalidIndex("zero"),
+            Input("update one Updated first note!"),
+            Output_InvalidIndex("one"),
 
             Output_WaitingForUserInput,
             Input("update   "),
@@ -61,8 +61,8 @@ class HSTests(HSAdapter):
             Output_Note(0, "Updated first note!"),
 
             Output_WaitingForUserInput,
-            Input("delete zero"),
-            Output_InvalidIndex("zero"),
+            Input("delete one"),
+            Output_InvalidIndex("one"),
 
             Output_WaitingForUserInput,
             Input("delete   "),
@@ -98,7 +98,7 @@ class HSTests(HSAdapter):
             Output_MissingNote,
 
             Output_WaitingForUserInput,
-            Input("get 1"),
+            Input("get 2"),
             Output_UnknownCommand,
 
             Output_WaitingForUserInput,

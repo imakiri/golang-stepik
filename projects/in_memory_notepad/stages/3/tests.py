@@ -62,7 +62,7 @@ class HSTests(HSAdapter):
             Output_MissingNote,
 
             Output_WaitingForUserInput,
-            Input("get 1"),
+            Input("get 2"),
             Output_UnknownCommand,
 
             Output_WaitingForUserInput,

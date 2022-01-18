@@ -25,7 +25,7 @@ func main() {
 	var index int
 	var exe = true
 	for exe {
-		fmt.Print("Enter command and data: ")
+		fmt.Print("\nEnter command and data: ")
 		if !scanner.Scan() {
 			return
 		}
@@ -59,7 +59,7 @@ func main() {
 			for i, v := range storage {
 			    if v != "" {
 			        c++
-			        fmt.Printf("[Info] Index %d: %s\n", i, v)
+			        fmt.Printf("[Info] %d: %s\n", i+1, v)
 			    }
 			}
 			if c == 0 {
