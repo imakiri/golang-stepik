@@ -13,44 +13,47 @@ def randomString() -> str:
     return a + b
 
 
-def generate() -> list[Test]:
-    tests: list[Test] = []
+class HSTests(HSAdapter):
+    def __init__(self):
+        super(HSTests, self).__init__()
 
-    tests.append(TestMain().appendList([
-        Output_WaitingForUserInput,
-        Input("create This is my first record!"),
-        Output("create", feedback_command),
+    def generate(self) -> list[TestCase]:
+        tests: list[Test] = []
 
-        Output_WaitingForUserInput,
-        Input("create This is my second record!"),
-        Output("create", feedback_command),
+        tests.append(TestMain().appendList([
+            Output_WaitingForUserInput,
+            Input("create This is my first record!"),
+            Output("create", feedback_command),
 
-        Output_WaitingForUserInput,
-        Input("list"),
-        Output("list", feedback_command),
+            Output_WaitingForUserInput,
+            Input("create This is my second record!"),
+            Output("create", feedback_command),
 
-        Output_WaitingForUserInput,
-        Input("exit 1098"),
-        Output_Bye,
-    ]))
+            Output_WaitingForUserInput,
+            Input("list"),
+            Output("list", feedback_command),
 
-    for i in range(2):
-        test = TestMain()
-        for j in range(rand.randrange(1 + 2 * i, 3 + 2 * i)):
+            Output_WaitingForUserInput,
+            Input("exit 1098"),
+            Output_Bye,
+        ]))
+
+        for i in range(2):
+            test = TestMain()
+            for j in range(rand.randrange(1 + 2 * i, 3 + 2 * i)):
+                test.append(Output_WaitingForUserInput)
+                rs = randomString().partition(' ')
+                test.append(Input(f"{rs[0]} {rs[2]}"))
+                test.append(Output(f"{rs[0]}", feedback_command))
+
             test.append(Output_WaitingForUserInput)
-            rs = randomString().partition(' ')
-            test.append(Input(f"{rs[0]} {rs[2]}"))
-            test.append(Output(f"{rs[0]}", feedback_command))
+            test.append(Input(f"exit {randomString()}"))
+            test.append(Output_Bye)
 
-        test.append(Output_WaitingForUserInput)
-        test.append(Input(f"exit {randomString()}"))
-        test.append(Output_Bye)
+            tests.append(test)
 
-        tests.append(test)
-
-    return tests
+        return self.toHS(tests)
 
 
 if __name__ == '__main__':
-    tests = generate()
-    HSAdapter(tests).run_tests()
+    HSTests().run_tests()

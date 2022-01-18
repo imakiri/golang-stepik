@@ -47,10 +47,10 @@ class Test:
             re += v.command + self.commandSeparator
         return re
 
-    def compileOutput(self) -> str:
-        re = ""
-        for v in self.output:
-            re += v.expectedResult
+    def listInput(self) -> list[str]:
+        re: list[str] = []
+        for v in self.input:
+            re.append(v.command)
         return re
 
     def tracebackInput(self, outputIndex: int) -> list[Input]:
@@ -71,7 +71,7 @@ class Test:
         return l
 
 
-    def check(self, index: int, userOutput: str) -> Result:
+    def check(self, reply: str) -> Result:
         raise NotImplementedError
 
     def append(self, unit: any) -> Test:
@@ -93,18 +93,17 @@ class Test:
 
 
 class HSAdapter(StageTest):
-    def __init__(self, tests: list[Test]):
+    def __init__(self):
         super(HSAdapter, self).__init__()
-        self.tests = tests
 
-    def generate(self) -> list[TestCase]:
-        ts = []
-        for test in self.tests:
-            ts.append((test.compileInput(), test.compileOutput()))
-        return TestCase.from_stepik(ts)
+    @staticmethod
+    def toHS(tests: list[Test]) -> list[TestCase]:
+        ts: list[TestCase] = []
+        for test in tests:
+            ts.append(TestCase(stdin=test.listInput(), attach=test))
+        return ts
 
-    def check(self, user_answer: str, correct_answer: Any) -> CheckResult:
-        for index, test in enumerate(self.tests):
-            if correct_answer == test.compileOutput():
-                result = test.check(index, user_answer)
-                return CheckResult(result.isOk(), result.toString())
+    def check(self, reply: str, attach: any) -> CheckResult:
+        test: Test = attach
+        result = test.check(reply)
+        return CheckResult(result.isOk(), result.toString())
