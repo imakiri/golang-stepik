@@ -39,7 +39,7 @@ class FailFormatting(Fail):
     def toString(self) -> str:
         return super(FailFormatting, self).toString() + \
                f"This error might be caused by an unacceptable string formatting.\n" \
-               f"Please verify the string formatting and remove redundant symbols.\n" \
+               f"Please verify the string formatting and remove redundant symbols.\n"
 
 
 class TestMain(Test):

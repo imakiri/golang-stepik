@@ -11,7 +11,7 @@ func main() {
 	var exe = true
 	var scanner = bufio.NewScanner(os.Stdin)
 	for exe {
-		fmt.Print("\nfffEnter command and data: ")
+		fmt.Print("\nEnter command and data: ")
 		if !scanner.Scan() {
 			return
 		}

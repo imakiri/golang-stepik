@@ -1,9 +1,10 @@
+from __future__ import annotations
 import random as rand
 import string
 
-from projects.in_memory_notepad.testlib.testlib import Input, Output, Result
-from projects.in_memory_notepad.testlib.extra import Pass, Fail, FailFormatting
-from projects.in_memory_notepad.data.data import *
+from hstest.stage_test import *
+from hstest.test_case import TestCase
+from projects.in_memory_notepad.extra.extra import *
 
 
 def randomString() -> str:
