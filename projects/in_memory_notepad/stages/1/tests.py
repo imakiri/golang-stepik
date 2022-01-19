@@ -45,31 +45,6 @@ class Test:
 
         return l
 
-    def check(self, reply: str) -> Result:
-        remainingReply = reply
-        index = 0
-
-        while True:
-            o = self.output[index]
-            i = remainingReply.find(o.expectedResult)
-            if i == -1:
-                return Fail(self, index, remainingReply)
-
-            j = 0
-            th = 0
-            while j < i:
-                if remainingReply[j] not in self.acceptedSymbols:
-                    th += 1
-                    if th > self.threshold:
-                        return FailFormatting(self, index, remainingReply)
-                j += 1
-
-            index += 1
-            if index >= len(self.output):
-                return Pass()
-
-            remainingReply = remainingReply[i + len(o.expectedResult):]
-
     def append(self, unit: any) -> Test:
         if isinstance(unit, Input):
             self.input.append(unit)
@@ -138,8 +113,32 @@ class Tests(StageTest):
 
     def check(self, reply: str, attach: any) -> CheckResult:
         test: Test = attach
-        result = test.check(reply)
-        return CheckResult(result.isOk(), result.toString())
+        remainingReply = reply
+        index = 0
+
+        while True:
+            o = test.output[index]
+            i = remainingReply.find(o.expectedResult)
+            if i == -1:
+                result = Fail(test, index, remainingReply)
+                return CheckResult(result.isOk(), result.toString())
+
+            j = 0
+            th = 0
+            while j < i:
+                if remainingReply[j] not in test.acceptedSymbols:
+                    th += 1
+                    if th > test.threshold:
+                        result = FailFormatting(test, index, remainingReply)
+                        return CheckResult(result.isOk(), result.toString())
+                j += 1
+
+            index += 1
+            if index >= len(test.output):
+                result = Pass()
+                return CheckResult(result.isOk(), result.toString())
+
+            remainingReply = remainingReply[i + len(o.expectedResult):]
 
 
 if __name__ == '__main__':
