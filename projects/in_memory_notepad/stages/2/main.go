@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 		if !scanner.Scan() {
 			return
 		}
+		time.Sleep(time.Second)
 
 		var input = strings.SplitN(scanner.Text(), " ", 2)
 		switch input[0] {

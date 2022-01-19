@@ -70,7 +70,6 @@ class Test:
 
         return l
 
-
     def check(self, reply: str) -> Result:
         raise NotImplementedError
 

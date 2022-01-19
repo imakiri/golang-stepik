@@ -32,20 +32,14 @@ class Fail(Result):
                # f"Error index: {self.index}\n"
 
 
-class FailFormatting(Result):
+class FailFormatting(Fail):
     def __init__(self, test: Test, index: int, got: str):
         super(FailFormatting, self).__init__(test, index, got)
 
     def toString(self) -> str:
-        return f'When executing "{self.traceInput[0].command}"\n' \
-               f"Expected to find:\n" \
-               f'"{self.output.expectedResult}"\n' \
-               f"in:\n" \
-               f'"{self.got[:self.l]}..."\n' \
-               f"{self.output.feedback}\n" \
+        return super(FailFormatting, self).toString() + \
                f"This error might be caused by an unacceptable string formatting.\n" \
                f"Please verify the string formatting and remove redundant symbols.\n" \
-               # f"Error index: {self.index}\n"
 
 
 class TestMain(Test):
