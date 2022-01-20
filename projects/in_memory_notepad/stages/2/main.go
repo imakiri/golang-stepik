@@ -15,6 +15,9 @@ func main() {
 	var exe = true
 	var i = 1
 	for exe {
+// 	    if i > 0 {
+// 			fmt.Print("\nEnter command and data: ")
+// 		}
 		if i <= 0 {
 			fmt.Print("\nEnter command and data: ")
 		}

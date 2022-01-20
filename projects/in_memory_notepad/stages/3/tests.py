@@ -118,12 +118,13 @@ class Tests(StageTest):
         test: Test = attach
         remainingReply = reply
         index = 0
+        output: list[str] = []
 
         while True:
             o = test.output[index]
             i = remainingReply.find(o.expectedResult)
             if i == -1:
-                return CheckResult(False, feedback(test, index, remainingReply))
+                return CheckResult(False, feedback(test, output, index, remainingReply))
 
             j = 0
             th = 0
@@ -131,13 +132,15 @@ class Tests(StageTest):
                 if remainingReply[j] not in test.acceptedSymbols:
                     th += 1
                     if th > test.threshold:
-                        fb = feedback(test, index, remainingReply)
-                        fb += f"This error might be caused by an unacceptable string formatting.\n" \
+                        fb = feedback(test, output, index, remainingReply)
+                        fb += f"\n" \
+                              f"This error might be caused by an unacceptable string formatting.\n" \
                               f"Please verify the string formatting and remove redundant symbols.\n"
                         return CheckResult(False, fb)
                 j += 1
 
             index += 1
+            output.append(remainingReply[:i+len(o.expectedResult)])
             if index >= len(test.output):
                 return CheckResult(True, "")
 

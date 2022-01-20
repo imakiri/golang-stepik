@@ -37,23 +37,6 @@ class Test:
             re.append(v.command)
         return re
 
-    def tracebackInput(self, outputIndex: int) -> list[Input]:
-        l: list[Input] = []
-        i = -1
-        o = -1
-        n = 0
-        while o < outputIndex:
-            if self.order[n] == 0:
-                i += 1
-            if self.order[n] == 1:
-                o += 1
-            n += 1
-
-        for j in range(i, -1, -1):
-            l.append(self.input[j])
-
-        return l
-
     def append(self, unit: any) -> Test:
         if isinstance(unit, Input):
             self.input.append(unit)
@@ -72,20 +55,43 @@ class Test:
         return self
 
 
-def feedback(test: Test, index: int, got: str) -> str:
-    traceInput = test.tracebackInput(index)
-    output = test.output[index]
+def traceback(test: Test, userOutput: list[str], indexOutput: int, depth: int) -> str:
+    tb = ""
+    n = 0
+    i = 0
+    o = 0
+    while o < indexOutput:
+        if test.order[n] == 0:
+            tb += "> "
+            tb += test.input[i].command
+            tb += "\n"
+            i += 1
+        if test.order[n] == 1:
+            tb += userOutput[o]
+            o += 1
+        n += 1
+
+    return tb
+
+
+def feedback(test: Test, userOutput: list[str], indexOutput: int, got: str) -> str:
+    output = test.output[indexOutput]
     l = 2 * len(output.expectedResult) + 1
     l = l if l < len(got) else len(got) - 1
     re = ""
 
-    if len(traceInput) != 0:
-        re += f'When executing "{traceInput[0].command}"\n'
+    tb = traceback(test, userOutput, indexOutput, -1)
+    if len(tb) == 0:
+        re += "This error happened at the very beginning of the program execution\n\n"
+    else:
+        re += "The error happened after:\n"
+        re += tb
+        re += "\n\n"
 
     re += f"Expected to find:\n" \
           f'"{output.expectedResult}"\n' \
           f"in:\n" \
-          f'"{got[:l]}..."\n' \
+          f'"{got[:l]}..."\n\n' \
           f"{output.feedback}\n"
 
     return re
