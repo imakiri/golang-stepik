@@ -29,7 +29,7 @@ class Tests(StageTest):
         tests: list[Test] = []
 
         tests.append(Test().appendList([
-            Output_WaitingForUserInput,
+            Output_WaitingForUserInput.append("This error happened at the very beginning of the program execution"),
             Input_Create("This is my first record!"),
             Output_NoteCreated,
 
