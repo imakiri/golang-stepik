@@ -71,8 +71,7 @@ class Tests(StageTest):
             o = test.output[index]
             i = remainingReply.find(o.expectedResult)
             if i == -1:
-                result = Fail(test, index, remainingReply)
-                return CheckResult(result.isOk(), result.toString())
+                return CheckResult(False, feedback(test, index, remainingReply))
 
             j = 0
             th = 0
@@ -80,14 +79,15 @@ class Tests(StageTest):
                 if remainingReply[j] not in test.acceptedSymbols:
                     th += 1
                     if th > test.threshold:
-                        result = FailFormatting(test, index, remainingReply)
-                        return CheckResult(result.isOk(), result.toString())
+                        fb = feedback(test, index, remainingReply)
+                        fb += f"This error might be caused by an unacceptable string formatting.\n" \
+                              f"Please verify the string formatting and remove redundant symbols.\n"
+                        return CheckResult(False, fb)
                 j += 1
 
             index += 1
             if index >= len(test.output):
-                result = Pass()
-                return CheckResult(result.isOk(), result.toString())
+                return CheckResult(True, "")
 
             remainingReply = remainingReply[i + len(o.expectedResult):]
 

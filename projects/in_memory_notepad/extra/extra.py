@@ -39,8 +39,8 @@ class Test:
 
     def tracebackInput(self, outputIndex: int) -> list[Input]:
         l: list[Input] = []
-        i = 0
-        o = 0
+        i = -1
+        o = -1
         n = 0
         while o < outputIndex:
             if self.order[n] == 0:
@@ -72,53 +72,23 @@ class Test:
         return self
 
 
-class Result:
-    def isOk(self) -> bool:
-        raise NotImplementedError
+def feedback(test: Test, index: int, got: str) -> str:
+    traceInput = test.tracebackInput(index)
+    output = test.output[index]
+    l = 2 * len(output.expectedResult) + 1
+    l = l if l < len(got) else len(got) - 1
+    re = ""
 
-    def toString(self) -> str:
-        raise NotImplementedError
+    if len(traceInput) != 0:
+        re += f'When executing "{traceInput[0].command}"\n'
 
+    re += f"Expected to find:\n" \
+          f'"{output.expectedResult}"\n' \
+          f"in:\n" \
+          f'"{got[:l]}..."\n' \
+          f"{output.feedback}\n"
 
-class Pass(Result):
-    def isOk(self) -> bool:
-        return True
-
-    def toString(self) -> str:
-        return "You've passed!"
-
-
-class Fail(Result):
-    def __init__(self, test: Test, index: int, got: str):
-        self.test = test
-        self.index = index
-        self.output = self.test.output[index]
-        self.got = got
-        self.traceInput = test.tracebackInput(index)
-        self.l = 2 * len(self.output.expectedResult) + 1
-        self.l = self.l if self.l < len(got) else len(got) - 1
-
-    def isOk(self) -> bool:
-        return False
-
-    def toString(self) -> str:
-        return f'When executing "{self.traceInput[0].command}"\n' \
-               f"Expected to find:\n" \
-               f'"{self.output.expectedResult}"\n' \
-               f"in:\n" \
-               f'"{self.got[:self.l]}..."\n' \
-               f"{self.output.feedback}\n" \
-            # f"Error index: {self.index}\n"
-
-
-class FailFormatting(Fail):
-    def __init__(self, test: Test, index: int, got: str):
-        super(FailFormatting, self).__init__(test, index, got)
-
-    def toString(self) -> str:
-        return super(FailFormatting, self).toString() + \
-               f"This error might be caused by an unacceptable string formatting.\n" \
-               f"Please verify the string formatting and remove redundant symbols.\n"
+    return re
 
 
 Output_WaitingForMaxNum = Output(
