@@ -37,6 +37,33 @@ class Test:
             re.append(v.command)
         return re
 
+    def nextInputAfter(self, index: int) -> int:
+        a = 0
+        for t in self.order[index:]:
+            if t == 1:
+                a += 1
+            elif t == 0:
+                break
+            else:
+                raise Exception(f"Test.list error")
+        return a
+
+    def list(self) -> list[any]:
+        re = []
+        i = 0
+        o = 0
+        for t in self.order:
+            if t == 0:
+                re.append(self.input[i])
+                i += 1
+            elif t == 1:
+                re.append(self.output[o])
+                o += 1
+            else:
+                raise Exception(f"Test.list error")
+
+        return re
+
     def append(self, unit: any) -> Test:
         if isinstance(unit, Input):
             self.input.append(unit)

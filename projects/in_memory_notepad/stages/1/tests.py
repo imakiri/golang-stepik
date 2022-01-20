@@ -3,7 +3,7 @@ import random as rand
 import string
 
 from hstest.stage_test import *
-from hstest.test_case import TestCase
+from hstest import StageTest, dynamic_test, TestedProgram, CheckResult
 from projects.in_memory_notepad.extra.extra import *
 
 
@@ -17,15 +17,6 @@ def randomString() -> str:
 class Tests(StageTest):
     def __init__(self):
         super(Tests, self).__init__()
-
-    @staticmethod
-    def toHS(tests: list[Test]) -> list[TestCase]:
-        ts: list[TestCase] = []
-        for test in tests:
-            ts.append(TestCase(stdin=test.listInput(), attach=test))
-        return ts
-
-    def generate(self) -> list[TestCase]:
         tests: list[Test] = []
 
         tests.append(Test().appendList([
@@ -60,39 +51,61 @@ class Tests(StageTest):
 
             tests.append(test)
 
-        return self.toHS(tests)
+        self.tests = tests
 
-    def check(self, reply: str, attach: any) -> CheckResult:
-        test: Test = attach
-        remainingReply = reply
+    def t(self, test: Test) -> CheckResult:
+        program = TestedProgram()
         index = 0
-        output: list[str] = []
+        indexOutput = 0
+        output = [program.start()]
+        parsedOutput: list[str] = []
+        for unit in test.list():
+            if isinstance(unit, Input):
+                output.append(program.execute(unit.command))
+                index += 1
+            elif isinstance(unit, Output):
+                remainingReply = output[len(output)-1]
+                while test.nextInputAfter(index) > 0:
+                    o = test.output[indexOutput]
+                    i = remainingReply.find(o.expectedResult)
+                    if i == -1:
+                        return CheckResult(False, feedback(test, parsedOutput, indexOutput, remainingReply))
 
-        while True:
-            o = test.output[index]
-            i = remainingReply.find(o.expectedResult)
-            if i == -1:
-                return CheckResult(False, feedback(test, output, index, remainingReply))
+                    j = 0
+                    th = 0
+                    while j < i:
+                        if remainingReply[j] not in test.acceptedSymbols:
+                            th += 1
+                            if th > test.threshold:
+                                fb = feedback(test, parsedOutput, indexOutput, remainingReply)
+                                fb += f"\n" \
+                                      f"This error might be caused by an unacceptable string formatting.\n" \
+                                      f"Please verify the string formatting and remove redundant symbols.\n"
+                                return CheckResult(False, fb)
+                        j += 1
+                    indexOutput += 1
+                    index += 1
+                    parsedOutput.append(remainingReply[:i + len(o.expectedResult)])
+                    remainingReply = remainingReply[i + len(o.expectedResult):]
+            else:
+                raise Exception(f"given type {type(unit)} is not supported")
 
-            j = 0
-            th = 0
-            while j < i:
-                if remainingReply[j] not in test.acceptedSymbols:
-                    th += 1
-                    if th > test.threshold:
-                        fb = feedback(test, output, index, remainingReply)
-                        fb += f"\n" \
-                              f"This error might be caused by an unacceptable string formatting.\n" \
-                              f"Please verify the string formatting and remove redundant symbols.\n"
-                        return CheckResult(False, fb)
-                j += 1
+        return CheckResult.correct()
 
-            index += 1
-            output.append(remainingReply[:i+len(o.expectedResult)])
-            if index >= len(test.output):
-                return CheckResult(True, "")
+    @dynamic_test(order=0)
+    def t0(self) -> CheckResult:
+        test = self.tests[0]
+        return self.t(test)
 
-            remainingReply = remainingReply[i + len(o.expectedResult):]
+    @dynamic_test(order=1)
+    def t1(self) -> CheckResult:
+        test = self.tests[1]
+        return self.t(test)
+
+    @dynamic_test(order=2)
+    def t2(self) -> CheckResult:
+        test = self.tests[2]
+        return self.t(test)
 
 
 if __name__ == '__main__':
