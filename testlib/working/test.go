@@ -1,7 +1,6 @@
 package working
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/imakiri/golang-stepik/testlib"
@@ -26,6 +25,7 @@ type Test struct {
 	timeout  time.Duration
 	args     []string
 	feedback string
+	error    error
 }
 
 func (t *Test) Args() []string {
@@ -40,23 +40,23 @@ func (t *Test) Scanner(handler testlib.Handler) bool {
 	for i := range t.units {
 		switch u := t.units[i].(type) {
 		case Input:
-			var _, err = handler.WriteString(u.Command + "\n")
+			var _, err = handler.Write([]byte(u.Command + "\n"))
 			if err != nil {
-				t.feedback = err.Error()
+				t.error = err
 				return false
 			}
 		case Output:
-			var r = bufio.NewReader(handler)
 			t.feedback = u.Feedback
 			var line []byte
 
 			for {
-				var s, err = r.ReadString(u.Expected[len(u.Expected)-1])
+				var b = make([]byte, 1)
+				var _, err = handler.Read(b)
 				if err != nil {
 					break
 				}
 
-				line = append(line, []byte(s)...)
+				line = append(line, b[0])
 				if bytes.Contains(line, []byte(u.Expected)) {
 					break
 				}
@@ -67,13 +67,15 @@ func (t *Test) Scanner(handler testlib.Handler) bool {
 			return false
 		}
 	}
-
-	_ = handler.Close()
 	return true
 }
 
 func (t *Test) Feedback() string {
 	return t.feedback
+}
+
+func (t *Test) Error() error {
+	return t.error
 }
 
 func NewTest(units []interface{}, timeout time.Duration, args []string) (*Test, error) {

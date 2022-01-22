@@ -55,15 +55,15 @@ func main() {
 			index++
 			fmt.Print("[OK] The note was successfully created\n")
 		case "list":
-		    var c int
+			var c int
 			for i, v := range storage {
-			    if v != "" {
-			        c++
-			        fmt.Printf("[Info] %d: %s\n", i+1, v)
-			    }
+				if v != "" {
+					c++
+					fmt.Printf("[Info] %d: %s\n", i+1, v)
+				}
 			}
 			if c == 0 {
-			    fmt.Println("[Info] Notepad is empty")
+				fmt.Println("[Info] Notepad is empty")
 			}
 			continue
 		case "clear":

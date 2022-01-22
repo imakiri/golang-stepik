@@ -1,6 +1,9 @@
 package testlib
 
 import (
+	"bytes"
+	"fmt"
+	"github.com/golang-collections/go-datastructures/bitarray"
 	"io"
 	"time"
 )
@@ -10,10 +13,8 @@ type Validator interface {
 }
 
 type Handler interface {
-	io.Reader
-	io.Writer
-	io.StringWriter
-	io.Closer
+	io.ReadWriteCloser
+	Buffer() (*bytes.Buffer, bitarray.BitArray, uint64)
 }
 
 type Test interface {
@@ -21,17 +22,18 @@ type Test interface {
 	Timeout() time.Duration
 	Scanner(handler Handler) bool
 	Feedback() string
+	Error() error
 }
 
 type tester struct {
 	tests []Test
 }
 
-func (t *tester) Test() (result bool, feedback string) {
+func (t *tester) Test(filename string) (result bool, feedback string, err error) {
 	for i := range t.tests {
-		var handler, err = NewHandler(t.tests[i].Args())
+		var handler, err = NewHandler(filename, t.tests[i].Args())
 		if err != nil {
-			return false, err.Error()
+			return false, "", err
 		}
 
 		var ch = make(chan bool, 1)
@@ -41,11 +43,23 @@ func (t *tester) Test() (result bool, feedback string) {
 
 		select {
 		case result = <-ch:
-			feedback = t.tests[i].Feedback()
+			break
 		case <-time.After(t.tests[i].Timeout()):
 			result = false
-			feedback = t.tests[i].Feedback()
 		}
+
+		if err = handler.Close(); err != nil {
+			return result, feedback, err
+		}
+		if err = t.tests[i].Error(); err != nil {
+			return result, feedback, err
+		}
+
+		feedback = t.tests[i].Feedback()
+		fmt.Println("")
+		var f, e = Traceback(handler.Buffer())
+		err = e
+		fmt.Printf("%s\n\n", f)
 	}
 	return
 }

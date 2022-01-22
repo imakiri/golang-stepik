@@ -30,22 +30,21 @@ func extractIndex(index int, size int, input []string) (int, []string, error) {
 	var i, err = strconv.Atoi(data[0])
 	switch {
 	case err != nil:
-	    var strIndex = strings.TrimSpace(data[0])
-	    if strIndex == "" {
-	        return 0, nil, fmt.Errorf("[Error] Missing position argument\n")
-	    }
+		var strIndex = strings.TrimSpace(data[0])
+		if strIndex == "" {
+			return 0, nil, fmt.Errorf("[Error] Missing position argument\n")
+		}
 		return 0, nil, fmt.Errorf("[Error] Invalid position: %s\n", data[0])
 	case !(0 <= i-1 && i-1 < size):
 		return 0, nil, fmt.Errorf("[Error] Position %d is out of the boundary [1, %d]\n", i, size)
 	case i-1 > index:
 		return 0, nil, fmt.Errorf("[Error] There is nothing to update\n")
 	case i-1 <= index:
-		return i-1, data, nil
+		return i - 1, data, nil
 	default:
 		return 0, nil, fmt.Errorf("[Error] Internal error occurred")
 	}
 }
-
 
 func main() {
 	var scanner = bufio.NewScanner(os.Stdin)
@@ -89,15 +88,15 @@ func main() {
 			index++
 			fmt.Print("[OK] The note was successfully created\n")
 		case "list":
-		    var c int
+			var c int
 			for i, v := range storage {
-			    if v != "" {
-			        c++
-			        fmt.Printf("[Info] %d: %s\n", i+1, v)
-			    }
+				if v != "" {
+					c++
+					fmt.Printf("[Info] %d: %s\n", i+1, v)
+				}
 			}
 			if c == 0 {
-			    fmt.Println("[Info] Notepad is empty")
+				fmt.Println("[Info] Notepad is empty")
 			}
 			continue
 		case "update":
@@ -116,7 +115,7 @@ func main() {
 			storage[i] = note
 			fmt.Printf("[OK] The note at position %d was successfully updated\n", i+1)
 		case "delete":
-			var i, _ , err = extractIndex(index, size, input)
+			var i, _, err = extractIndex(index, size, input)
 			if err != nil {
 				fmt.Print(err)
 				continue

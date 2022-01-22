@@ -20,10 +20,18 @@ var feedback_command = "The program should print back only the given command and
 func main() {
 	var tests = []testlib.Test{
 		MustNewTest([]interface{}{
+			working.Output{
+				Expected: "Enter command and data: ",
+				Feedback: "",
+			},
 			working.Input{Command: "create ethetj"},
 			working.Output{
 				Expected: "create",
 				Feedback: feedback_command,
+			},
+			working.Output{
+				Expected: "Enter command and data: ",
+				Feedback: "",
 			},
 			working.Input{Command: "delete gffgfg"},
 			working.Output{
