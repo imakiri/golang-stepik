@@ -7,7 +7,7 @@ import (
 )
 
 func MustNewTest(units []interface{}) testlib.Test {
-	var t, err = working.NewTest(units, 1000*time.Second, []string{})
+	var t, err = working.NewTest(units, time.Second, []string{})
 	if err != nil {
 		panic(err)
 	}
@@ -30,8 +30,8 @@ func main() {
 				Feedback: feedback_command,
 			},
 			working.Output{
-				Expected: "Enter command and data: ",
-				Feedback: "",
+				Expected: "Enter command and data fdgfdg: ",
+				Feedback: "The program should ask user for a command",
 			},
 			working.Input{Command: "delete gffgfg"},
 			working.Output{
