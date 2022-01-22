@@ -48,18 +48,19 @@ func (t *Test) Scanner(handler testlib.Handler) bool {
 		case Output:
 			t.feedback = u.Feedback
 			var line []byte
+			var b = make([]byte, 1)
 
 			for {
-				var b = make([]byte, 1)
-				var _, err = handler.Read(b)
-				if err != nil {
-					break
-				}
-
-				line = append(line, b[0])
 				if bytes.Contains(line, []byte(u.Expected)) {
 					break
 				}
+
+				var _, err = handler.Read(b)
+				if err != nil {
+					continue
+				}
+
+				line = append(line, b[0])
 			}
 
 			t.feedback = ""

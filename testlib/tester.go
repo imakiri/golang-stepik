@@ -1,9 +1,7 @@
 package testlib
 
 import (
-	"bytes"
 	"fmt"
-	"github.com/golang-collections/go-datastructures/bitarray"
 	"io"
 	"time"
 )
@@ -14,7 +12,8 @@ type Validator interface {
 
 type Handler interface {
 	io.ReadWriteCloser
-	Buffer() (*bytes.Buffer, bitarray.BitArray, uint64)
+	Dump() (*bufferW, *bufferW, error)
+	Trace() (*buffer, error)
 }
 
 type Test interface {
@@ -56,10 +55,22 @@ func (t *tester) Test(filename string) (result bool, feedback string, err error)
 		}
 
 		feedback = t.tests[i].Feedback()
-		fmt.Println("")
-		var f, e = Traceback(handler.Buffer())
-		err = e
-		fmt.Printf("%s\n\n", f)
+		fmt.Print("\n---------------------------\n")
+		var t, _ = handler.Trace()
+		fmt.Println(t.Buffer.String())
+		fmt.Print("\n---------------------------\n")
+		fmt.Println(handler.buffers.in.String())
+		fmt.Print("\n---------------------------\n")
+		fmt.Println(handler.buffers.out.String())
+		fmt.Print("\n---------------------------\n")
+
+		//var bw, br, e = handler.Dump()
+		//if e != nil {
+		//	return result, feedback, e
+		//}
+		//var f, er = Trace(bw, br)
+		//err = er
+		//fmt.Printf("%s\n\n", f)
 	}
 	return
 }

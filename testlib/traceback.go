@@ -1,50 +1,62 @@
 package testlib
 
 import (
-	"bytes"
-	"github.com/golang-collections/go-datastructures/bitarray"
+	"sort"
 )
 
-func Traceback(buf *bytes.Buffer, ba bitarray.BitArray, index uint64) (string, error) {
-	if index == 0 {
+type elem struct {
+	_type bool
+	time  int64
+	index int
+}
+
+func Trace(in *bufferW, out *bufferW) (string, error) {
+	var elems []elem
+	for i := range in.monotime {
+		elems = append(elems, elem{
+			_type: true,
+			time:  in.monotime[i],
+			index: i,
+		})
+	}
+	for j := range out.monotime {
+		elems = append(elems, elem{
+			_type: false,
+			time:  out.monotime[j],
+			index: j,
+		})
+	}
+
+	if len(elems) == 0 {
 		return "", nil
 	}
 
-	//fmt.Println(index, buf.Len())
+	sort.SliceStable(elems, func(i, j int) bool {
+		return elems[i].time < elems[j].time
+	})
 
-	var traceback []byte
-	var output, err = ba.GetBit(0)
-	if err != nil {
-		return "", err
-	}
+	var trace []byte
+	//var t = !elems[0]._type
+	for k := range elems {
+		//if elems[k]._type && !t {
+		//	trace = append(trace, []byte("> ")...)
+		//}
+		//t = elems[k]._type
 
-	if !output {
-		traceback = append(traceback, []byte("> ")...)
-	}
-
-	var b byte
-	if b, err = buf.ReadByte(); err != nil {
-		return string(traceback), nil
-	}
-	traceback = append(traceback, b)
-	var previous = output
-
-	for i := uint64(1); i < index; i++ {
-		if output, err = ba.GetBit(i); err != nil {
-			return "", err
+		if elems[k]._type {
+			var b, err = in.ReadByte()
+			if err != nil {
+				return string(trace), err
+			}
+			trace = append(trace, b)
+		} else {
+			var b, err = out.ReadByte()
+			if err != nil {
+				return string(trace), err
+			}
+			trace = append(trace, b)
 		}
-
-		if !output && (output != previous) {
-			traceback = append(traceback, []byte("> ")...)
-		}
-
-		if b, err = buf.ReadByte(); err != nil {
-			return string(traceback), nil
-		}
-
-		traceback = append(traceback, b)
-		previous = output
 	}
 
-	return string(traceback), nil
+	return string(trace), nil
 }
