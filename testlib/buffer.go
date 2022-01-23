@@ -3,6 +3,7 @@ package testlib
 import (
 	"bytes"
 	"sync"
+	_ "unsafe"
 )
 
 type buffer struct {
@@ -21,6 +22,10 @@ func (b *buffer) Write(p []byte) (n int, err error) {
 	defer b.Unlock()
 	return b.Buffer.Write(p)
 }
+
+//go:noescape
+//go:linkname nanotime runtime.nanotime
+func nanotime() int64
 
 type bufferR struct {
 	sync.Mutex
