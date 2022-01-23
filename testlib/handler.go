@@ -7,15 +7,13 @@ import (
 )
 
 type handler struct {
-	exe bool
-	//state   chan bool
-	//stop    chan struct{}
+	exe     bool
 	program *exec.Cmd
 	stdin   io.WriteCloser
 	stdout  *buffer
 	buffers struct {
-		in    *bufferW
-		out   *bufferW
+		in    *buffer
+		out   *buffer
 		trace *buffer
 	}
 
@@ -38,27 +36,18 @@ func (h *handler) Close() error {
 	return err
 }
 
-func (h *handler) Dump() (*bufferW, *bufferW, error) {
+func (h *handler) Buffers() (trace *buffer, in *buffer, out *buffer, err error) {
 	if h.exe {
-		return nil, nil, fmt.Errorf("the program is stil running")
+		return nil, nil, nil, fmt.Errorf("the program is stil running")
 	}
-	return h.buffers.in, h.buffers.out, nil
-}
-
-func (h *handler) Trace() (*buffer, error) {
-	if h.exe {
-		return nil, fmt.Errorf("the program is stil running")
-	}
-	return h.buffers.trace, nil
+	return h.buffers.trace, h.buffers.in, h.buffers.out, nil
 }
 
 func NewHandler(filename string, args []string) (*handler, error) {
 	var h = new(handler)
-	//h.stop = make(chan struct{}, 1)
-	//h.state = make(chan bool, 1)
-	h.buffers.trace = NewBuffer()
-	h.buffers.in = NewBufferW(2000)
-	h.buffers.out = NewBufferW(2000)
+	h.buffers.trace = new(buffer)
+	h.buffers.in = new(buffer)
+	h.buffers.out = new(buffer)
 	h.program = exec.Command(fmt.Sprintf("./%s", filename), args...)
 
 	var stdin, err = h.program.StdinPipe()
@@ -66,7 +55,7 @@ func NewHandler(filename string, args []string) (*handler, error) {
 		return nil, err
 	}
 	h.stdin = stdin
-	h.stdout = NewBuffer()
+	h.stdout = new(buffer)
 
 	var writer = io.MultiWriter(h.stdout, h.buffers.out, h.buffers.trace)
 	h.program.Stdout = writer

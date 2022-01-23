@@ -22,11 +22,6 @@ func (b *buffer) Write(p []byte) (n int, err error) {
 	return b.Buffer.Write(p)
 }
 
-func NewBuffer() *buffer {
-	var b = new(buffer)
-	return b
-}
-
 type bufferR struct {
 	sync.Mutex
 	bytes.Buffer

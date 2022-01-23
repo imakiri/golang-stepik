@@ -2,50 +2,78 @@ package testlib
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
+	"io"
 	"time"
 )
 
+type Validator interface {
+	Validate(code string) error
+}
+
 type Tester interface {
-	Test(filename string) (result bool, feedback string, err error)
+	Test(handler Handler) bool
+}
+
+type Handler interface {
+	io.ReadWriteCloser
+	Buffers() (trace *buffer, in *buffer, out *buffer, err error)
+}
+
+type Test interface {
+	Args() []string
+	Timeout() time.Duration
+	Feedback() string
+	Error() error
+	Validator
+	Tester
 }
 
 type runner struct {
-	tester Tester
+	tests    []Test
+	filename string
 }
 
-func (r *runner) Run() {
-	var output, err = exec.Command("E:\\golang\\sdk\\go1.16.10\\bin\\go.exe", "build", "main.go").CombinedOutput()
-	if err != nil {
-		fmt.Println(string(output))
-		fmt.Println(err)
-		return
-	}
-
-	var result bool
-	var feedback string
-	result, feedback, err = r.tester.Test("main.exe")
-	fmt.Println()
-	fmt.Print(result, feedback, err)
-
-	for start := time.Now(); time.Since(start) < time.Second; {
-		if err = os.Remove("main.exe"); err == nil {
-			break
+func (t *runner) Run() (result bool, feedback string, err error) {
+	for i := range t.tests {
+		var handler, err = NewHandler(t.filename, t.tests[i].Args())
+		if err != nil {
+			return false, "", err
 		}
-	}
 
-	if err != nil {
-		fmt.Println(err)
+		var ch = make(chan bool, 1)
+		go func() {
+			ch <- t.tests[i].Test(handler)
+		}()
+
+		select {
+		case result = <-ch:
+		case <-time.After(t.tests[i].Timeout()):
+			result = false
+		}
+
+		if err = handler.Close(); err != nil {
+			return result, feedback, err
+		}
+		if err = t.tests[i].Error(); err != nil {
+			return result, feedback, err
+		}
+
+		feedback = t.tests[i].Feedback()
+		var trace, in, out, _ = handler.Buffers()
+		fmt.Print("\n---------------------------\n")
+		fmt.Println(trace.String())
+		fmt.Print("\n---------------------------\n")
+		fmt.Println(in.String())
+		fmt.Print("\n---------------------------\n")
+		fmt.Println(out.String())
+		fmt.Print("\n---------------------------\n")
 	}
+	return
 }
 
-func NewRunner(tests []Test) *runner {
-	var r = new(runner)
-	var err error
-	if r.tester, err = NewTester(tests); err != nil {
-		panic(err)
-	}
-
-	return r
+func NewRunner(tests []Test, filename string) (*runner, error) {
+	var tester = new(runner)
+	tester.tests = tests
+	tester.filename = filename
+	return tester, nil
 }

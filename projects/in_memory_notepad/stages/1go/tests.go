@@ -7,7 +7,7 @@ import (
 )
 
 func MustNewTest(units []interface{}) testlib.Test {
-	var t, err = working.NewTest(units, time.Second, []string{})
+	var t, err = working.NewTest(nil, units, time.Second, []string{})
 	if err != nil {
 		panic(err)
 	}
@@ -21,7 +21,7 @@ func main() {
 	var tests = []testlib.Test{
 		MustNewTest([]interface{}{
 			working.Output{
-				Expected: "Enter command and data: ",
+				Expected: "E",
 				Feedback: "",
 			},
 			working.Input{Command: "create ethetj"},
@@ -41,6 +41,6 @@ func main() {
 		}),
 	}
 
-	var runner = testlib.NewRunner(tests)
-	runner.Run()
+	var main = testlib.NewMain(tests)
+	main.Execute()
 }

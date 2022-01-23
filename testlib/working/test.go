@@ -21,11 +21,12 @@ type Output struct {
 //}
 
 type Test struct {
-	units    []interface{}
-	timeout  time.Duration
-	args     []string
-	feedback string
-	error    error
+	validators []testlib.Validator
+	units      []interface{}
+	timeout    time.Duration
+	args       []string
+	feedback   string
+	error      error
 }
 
 func (t *Test) Args() []string {
@@ -36,7 +37,25 @@ func (t *Test) Timeout() time.Duration {
 	return t.timeout
 }
 
-func (t *Test) Scanner(handler testlib.Handler) bool {
+func (t *Test) Feedback() string {
+	return t.feedback
+}
+
+func (t *Test) Error() error {
+	return t.error
+}
+
+func (t *Test) Validate(code string) error {
+	var err error
+	for i := range t.validators {
+		if err = t.validators[i].Validate(code); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (t *Test) Test(handler testlib.Handler) bool {
 	for i := range t.units {
 		switch u := t.units[i].(type) {
 		case Input:
@@ -71,15 +90,7 @@ func (t *Test) Scanner(handler testlib.Handler) bool {
 	return true
 }
 
-func (t *Test) Feedback() string {
-	return t.feedback
-}
-
-func (t *Test) Error() error {
-	return t.error
-}
-
-func NewTest(units []interface{}, timeout time.Duration, args []string) (*Test, error) {
+func NewTest(validators []testlib.Validator, units []interface{}, timeout time.Duration, args []string) (*Test, error) {
 	var test = new(Test)
 	for i := range units {
 		switch units[i].(type) {
@@ -90,6 +101,7 @@ func NewTest(units []interface{}, timeout time.Duration, args []string) (*Test, 
 		}
 	}
 
+	test.validators = validators
 	test.units = units
 	test.timeout = timeout
 	test.args = args
