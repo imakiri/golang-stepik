@@ -32,6 +32,7 @@ func (h *handler) Write(p []byte) (n int, err error) {
 
 func (h *handler) Close() error {
 	var err = h.program.Process.Kill()
+	h.stdin.Close()
 	h.exe = false
 	return err
 }

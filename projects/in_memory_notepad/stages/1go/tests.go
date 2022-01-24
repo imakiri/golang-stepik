@@ -7,7 +7,7 @@ import (
 )
 
 func MustNewTest(units []interface{}) testlib.Test {
-	var t, err = working.NewTest(nil, units, time.Second, []string{})
+	var t, err = working.NewTest(nil, units, time.Second, 10*time.Millisecond, []string{})
 	if err != nil {
 		panic(err)
 	}

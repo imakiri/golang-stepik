@@ -24,6 +24,7 @@ type Test struct {
 	validators []testlib.Validator
 	units      []interface{}
 	timeout    time.Duration
+	delay      time.Duration
 	args       []string
 	feedback   string
 	error      error
@@ -35,6 +36,10 @@ func (t *Test) Args() []string {
 
 func (t *Test) Timeout() time.Duration {
 	return t.timeout
+}
+
+func (t *Test) Delay() time.Duration {
+	return t.delay
 }
 
 func (t *Test) Feedback() string {
@@ -90,7 +95,7 @@ func (t *Test) Test(handler testlib.Handler) bool {
 	return true
 }
 
-func NewTest(validators []testlib.Validator, units []interface{}, timeout time.Duration, args []string) (*Test, error) {
+func NewTest(validators []testlib.Validator, units []interface{}, timeout time.Duration, initialDelay time.Duration, args []string) (*Test, error) {
 	var test = new(Test)
 	for i := range units {
 		switch units[i].(type) {
@@ -104,6 +109,7 @@ func NewTest(validators []testlib.Validator, units []interface{}, timeout time.D
 	test.validators = validators
 	test.units = units
 	test.timeout = timeout
+	test.delay = initialDelay
 	test.args = args
 
 	return test, nil

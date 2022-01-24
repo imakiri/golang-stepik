@@ -22,6 +22,7 @@ type Handler interface {
 type Test interface {
 	Args() []string
 	Timeout() time.Duration
+	Delay() time.Duration
 	Feedback() string
 	Error() error
 	Validator
@@ -42,6 +43,7 @@ func (t *runner) Run() (result bool, feedback string, err error) {
 
 		var ch = make(chan bool, 1)
 		go func() {
+			time.Sleep(t.tests[i].Delay())
 			ch <- t.tests[i].Test(handler)
 		}()
 
