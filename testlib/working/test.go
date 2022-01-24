@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/imakiri/golang-stepik/testlib"
+	"io"
 	"time"
 )
 
@@ -60,7 +61,7 @@ func (t *Test) Validate(code string) error {
 	return nil
 }
 
-func (t *Test) Test(handler testlib.Handler) bool {
+func (t *Test) Test(handler io.ReadWriter) bool {
 	for i := range t.units {
 		switch u := t.units[i].(type) {
 		case Input:

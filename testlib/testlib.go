@@ -1,26 +1,31 @@
 package testlib
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"time"
 )
 
+const (
+	userSourceCode    = "main.go"
+	userProgramName   = "main.exe"
+	testerSourceCode  = "tester.go"
+	testerProgramName = "tester.exe"
+)
+
 type Runner interface {
 	Run() (result bool, feedback string, err error)
 }
 
-type main struct {
-	tests []Test
-}
+type Main struct{}
 
-func (r *main) Execute() {
-	var compiler = exec.Command("E:\\golang\\sdk\\go1.16.10\\bin\\go.exe", "build", "main.go")
+func (m *Main) compile(filename string, targetname string) error {
+	var compiler = exec.Command("E:\\golang\\sdk\\go1.16.10\\bin\\go.exe", "build", "-o", targetname, filename)
 	var err = compiler.Run()
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	if !compiler.ProcessState.Success() {
@@ -28,37 +33,77 @@ func (r *main) Execute() {
 
 		var output, err = compiler.Output()
 		if err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
-		fmt.Println(string(output))
+		return errors.New(string(output))
+	}
+
+	return nil
+}
+
+func (m *Main) cleanup(filename string) error {
+	var err error
+	for start := time.Now(); time.Since(start) < time.Second; {
+		if err = os.Remove(filename); err == nil {
+			break
+		}
+	}
+	return err
+}
+
+func (m *Main) Supervise() {
+	var err = m.compile(userSourceCode, userProgramName)
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
-	var tester *runner
-	if tester, err = NewRunner(r.tests, "main.exe"); err != nil {
+	if err = m.compile(testerSourceCode, testerProgramName); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var runner Runner
+	if runner, err = NewUnirunner(5 * time.Second); err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	var result bool
 	var feedback string
-	result, feedback, err = tester.Run()
+	result, feedback, err = runner.Run()
 	fmt.Print(result, feedback, err)
 
-	for start := time.Now(); time.Since(start) < time.Second; {
-		if err = os.Remove("main.exe"); err == nil {
-			break
-		}
-	}
-
-	if err != nil {
+	if err = m.cleanup(userProgramName); err != nil {
 		fmt.Println(err)
+		return
+	}
+	if err = m.cleanup(testerProgramName); err != nil {
+		fmt.Println(err)
+		return
 	}
 }
 
-func NewMain(tests []Test) *main {
-	var r = new(main)
-	r.tests = tests
-	return r
+func (m *Main) Execute(tests []Test) {
+	var err = m.compile(userSourceCode, userProgramName)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var runner Runner
+	if runner, err = NewRunner(tests, userProgramName); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var result bool
+	var feedback string
+	result, feedback, err = runner.Run()
+	fmt.Print(result, feedback, err)
+
+	if err = m.cleanup(userProgramName); err != nil {
+		fmt.Println(err)
+		return
+	}
 }
