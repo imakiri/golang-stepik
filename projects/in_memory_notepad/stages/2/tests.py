@@ -18,123 +18,159 @@ class Tests(StageTest):
     def __init__(self):
         super(Tests, self).__init__()
 
-    @staticmethod
-    def toHS(tests: list[Test]) -> list[TestCase]:
-        ts: list[TestCase] = []
-        for test in tests:
-            ts.append(TestCase(stdin=test.listInput(), attach=test))
-        return ts
+    @dynamic_test(order=0)
+    def t0(self) -> CheckResult:
+        program = TestedProgram()
 
-    def generate(self) -> list[TestCase]:
-        tests: list[Test] = []
+        reply = [program.start()]
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-        tests.append(Test().appendList([
-            Output_WaitingForUserInput,
-            Input_Create("This is my first record!"),
-            Output_NoteCreated,
+        reply = [Input("create This is my first record!").execute(program)]
+        with Output_NoteCreated as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_List,
-            Output_Note(0, "This is my first record!"),
+        reply = [Input_List.execute(program)]
+        with Output_Note(0, "This is my first record!") as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput.append(feedback_printingEmptyNotes) as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput.append(feedback_printingEmptyNotes),
-            Input_Clear,
-            Output_ListCleared,
+        reply = [Input_Clear.execute(program)]
+        with Output_ListCleared as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_List,
-            Output("", ""),
+        reply = [Input_List.execute(program)]
+        with Output("", "") as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput.append(feedback_printingEmptyNotes) as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput.append(feedback_printingEmptyNotes),
-            Input_Exit,
-            Output_Bye
-        ]))
+        reply = [Input_Exit.execute(program)]
+        with Output_Bye as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-        tests.append(Test().appendList([
-            Output_WaitingForUserInput,
-            Input_Create("This is my first record!"),
-            Output_NoteCreated,
+        return CheckResult.correct()
 
-            Output_WaitingForUserInput,
-            Input_Create("This is my second record!"),
-            Output_NoteCreated,
+    @dynamic_test(order=1)
+    def t1(self) -> CheckResult:
+        program = TestedProgram()
 
-            Output_WaitingForUserInput,
-            Input_Create("This is my third record!"),
-            Output_NoteCreated,
+        reply = [program.start()]
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_Create("This is my forth record!"),
-            Output_NoteCreated,
+        reply = [Input_Create("This is my first record!").execute(program)]
+        with Output_NoteCreated as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_Create("This is my fifth record!"),
-            Output_NoteCreated,
+        reply = [Input_Create("This is my second record!").execute(program)]
+        with Output_NoteCreated as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_Create("This is my sixth record!"),
-            Output_ListFull,
+        reply = [Input_Create("This is my third record!").execute(program)]
+        with Output_NoteCreated as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_List,
-            Output_Note(0, "This is my first record!"),
-            Output_Note(1, "This is my second record!"),
-            Output_Note(2, "This is my third record!"),
-            Output_Note(3, "This is my forth record!"),
-            Output_Note(4, "This is my fifth record!"),
+        reply = [Input_Create("This is my forth record!").execute(program)]
+        with Output_NoteCreated as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_Clear,
-            Output_ListCleared,
+        reply = [Input_Create("This is my fifth record!").execute(program)]
+        with Output_NoteCreated as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_Create("This is my sixth record!"),
-            Output_NoteCreated,
+        reply = [Input_Create("This is my sixth record!").execute(program)]
+        with Output_ListFull as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_List,
-            Output_Note(0, "This is my sixth record!"),
+        reply = [Input_List.execute(program)]
+        with Output_Note(0, "This is my first record!") as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_Note(1, "This is my second record!") as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_Note(2, "This is my third record!") as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_Note(3, "This is my forth record!") as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_Note(4, "This is my fifth record!") as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            Output_WaitingForUserInput,
-            Input_Exit,
-            Output_Bye
-        ]))
+        reply = [Input_Clear.execute(program)]
+        with Output_ListCleared as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-        return self.toHS(tests)
+        reply = [Input_Create("This is my sixth record!").execute(program)]
+        with Output_NoteCreated as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput.append(feedback_printingEmptyNotes) as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-    def check(self, reply: str, attach: any) -> CheckResult:
-        test: Test = attach
-        remainingReply = reply
-        index = 0
-        output: list[str] = []
+        reply = [Input_List.execute(program)]
+        with Output_Note(0, "This is my sixth record!") as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-        while True:
-            o = test.output[index]
-            i = remainingReply.find(o.expectedResult)
-            if i == -1:
-                return CheckResult(False, feedback(test, output, index, remainingReply))
+        reply = [Input_Exit.execute(program)]
+        with Output_Bye as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-            j = 0
-            th = 0
-            while j < i:
-                if remainingReply[j] not in test.acceptedSymbols:
-                    th += 1
-                    if th > test.threshold:
-                        fb = feedback(test, output, index, remainingReply)
-                        fb += f"\n" \
-                              f"This error might be caused by an unacceptable string formatting.\n" \
-                              f"Please verify the string formatting and remove redundant symbols.\n"
-                        return CheckResult(False, fb)
-                j += 1
-
-            index += 1
-            output.append(remainingReply[:i+len(o.expectedResult)])
-            if index >= len(test.output):
-                return CheckResult(True, "")
-
-            remainingReply = remainingReply[i + len(o.expectedResult):]
+        return CheckResult.correct()
 
 
 if __name__ == '__main__':
     Tests().run_tests()
-

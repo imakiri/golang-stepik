@@ -13,17 +13,8 @@ func main() {
 	var index int
 	var scanner = bufio.NewScanner(os.Stdin)
 	var exe = true
-	var i = 1
 	for exe {
-		if i > 0 {
-			fmt.Print("\nEnter command and data: ")
-		}
-		// 		if i <= 0 {
-		// 			fmt.Print("\nEnter command and data: ")
-		// 		}
-		i--
-
-		//fmt.Print("\nEnter command and data: ")
+		fmt.Print("\nEnter command and data: ")
 		if !scanner.Scan() {
 			return
 		}

@@ -21,7 +21,7 @@ func main() {
 	var tests = []testlib.Test{
 		MustNewTest([]interface{}{
 			working.Output{
-				Expected: "E",
+				Expected: "",
 				Feedback: "",
 			},
 			working.Input{Command: "create ethetj"},
