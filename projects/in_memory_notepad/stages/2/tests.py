@@ -27,7 +27,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input("create This is my first record!").execute(program)]
+        reply = [Input("create This is my first record!").executeBy(program)]
         with Output_NoteCreated as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -35,7 +35,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_List.execute(program)]
+        reply = [Input_List.executeBy(program)]
         with Output_Note(0, "This is my first record!") as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -43,7 +43,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Clear.execute(program)]
+        reply = [Input_Clear.executeBy(program)]
         with Output_ListCleared as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -51,7 +51,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_List.execute(program)]
+        reply = [Input_List.executeBy(program)]
         with Output("", "") as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -59,7 +59,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Exit.execute(program)]
+        reply = [Input_Exit.executeBy(program)]
         with Output_Bye as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -75,7 +75,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Create("This is my first record!").execute(program)]
+        reply = [Input_Create("This is my first record!").executeBy(program)]
         with Output_NoteCreated as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -83,7 +83,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Create("This is my second record!").execute(program)]
+        reply = [Input_Create("This is my second record!").executeBy(program)]
         with Output_NoteCreated as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -91,7 +91,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Create("This is my third record!").execute(program)]
+        reply = [Input_Create("This is my third record!").executeBy(program)]
         with Output_NoteCreated as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -99,7 +99,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Create("This is my forth record!").execute(program)]
+        reply = [Input_Create("This is my forth record!").executeBy(program)]
         with Output_NoteCreated as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -107,7 +107,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Create("This is my fifth record!").execute(program)]
+        reply = [Input_Create("This is my fifth record!").executeBy(program)]
         with Output_NoteCreated as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -115,7 +115,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Create("This is my sixth record!").execute(program)]
+        reply = [Input_Create("This is my sixth record!").executeBy(program)]
         with Output_ListFull as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -123,7 +123,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_List.execute(program)]
+        reply = [Input_List.executeBy(program)]
         with Output_Note(0, "This is my first record!") as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -143,7 +143,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Clear.execute(program)]
+        reply = [Input_Clear.executeBy(program)]
         with Output_ListCleared as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -151,7 +151,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Create("This is my sixth record!").execute(program)]
+        reply = [Input_Create("This is my sixth record!").executeBy(program)]
         with Output_NoteCreated as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -159,12 +159,15 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input_List.execute(program)]
+        reply = [Input_List.executeBy(program)]
         with Output_Note(0, "This is my sixth record!") as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
+        with Output_WaitingForUserInput as o:
+            if not o.check(reply):
+                return CheckResult.wrong(o.feedback)
 
-        reply = [Input_Exit.execute(program)]
+        reply = [Input_Exit.executeBy(program)]
         with Output_Bye as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)

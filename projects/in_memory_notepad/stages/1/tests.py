@@ -27,7 +27,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input("create This is my first record!").execute(program)]
+        reply = [Input("create This is my first record!").executeBy(program)]
         with Output("create", feedback_command) as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -35,7 +35,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input("create This is my second record!").execute(program)]
+        reply = [Input("create This is my second record!").executeBy(program)]
         with Output("create", feedback_command) as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -43,7 +43,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input("list").execute(program)]
+        reply = [Input("list").executeBy(program)]
         with Output("list", feedback_command) as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -51,7 +51,7 @@ class Tests(StageTest):
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
 
-        reply = [Input("exit 1098").execute(program)]
+        reply = [Input("exit 1098").executeBy(program)]
         with Output_Bye as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -66,9 +66,11 @@ class Tests(StageTest):
         with Output_WaitingForUserInput as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
+
         for j in range(rand.randrange(1, 3)):
             rs = randomString().partition(' ')
-            reply = [Input(f"{rs[0]} {rs[2]}").execute(program)]
+
+            reply = [Input(f"{rs[0]} {rs[2]}").executeBy(program)]
             with Output(f"{rs[0]}", feedback_command) as o:
                 if not o.check(reply):
                     return CheckResult.wrong(o.feedback)
@@ -76,7 +78,7 @@ class Tests(StageTest):
                 if not o.check(reply):
                     return CheckResult.wrong(o.feedback)
 
-        reply = [Input(f"exit {randomString()}").execute(program)]
+        reply = [Input(f"exit {randomString()}").executeBy(program)]
         with Output_Bye as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
@@ -91,9 +93,11 @@ class Tests(StageTest):
         with Output_WaitingForUserInput as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)
+
         for j in range(rand.randrange(3, 5)):
             rs = randomString().partition(' ')
-            reply = [Input(f"{rs[0]} {rs[2]}").execute(program)]
+
+            reply = [Input(f"{rs[0]} {rs[2]}").executeBy(program)]
             with Output(f"{rs[0]}", feedback_command) as o:
                 if not o.check(reply):
                     return CheckResult.wrong(o.feedback)
@@ -101,7 +105,7 @@ class Tests(StageTest):
                 if not o.check(reply):
                     return CheckResult.wrong(o.feedback)
 
-        reply = [Input(f"exit {randomString()}").execute(program)]
+        reply = [Input(f"exit {randomString()}").executeBy(program)]
         with Output_Bye as o:
             if not o.check(reply):
                 return CheckResult.wrong(o.feedback)

@@ -9,7 +9,7 @@ class Input:
     def __init__(self, string: str):
         self.command = string
 
-    def execute(self, program: TestedProgram) -> str:
+    def executeBy(self, program: TestedProgram) -> str:
         return program.execute(self.command)
 
 
@@ -51,6 +51,107 @@ class Output:
 
         reply[0] = reply[0][i + len(self.expectedResult):]
         return True
+
+
+class Test:
+    def __init__(self):
+        self.input: list[Input] = []
+        self.output: list[Output] = []
+        self.order: list[int] = []
+        self.acceptedSymbols = "\n "
+        self.threshold = 2
+
+    def listInput(self) -> list[str]:
+        re: list[str] = []
+        for v in self.input:
+            re.append(v.command)
+        return re
+
+    def nextInputAfter(self, indexInput: int) -> int:
+        a = 0
+        for t in self.order[indexInput:]:
+            if t == 1:
+                a += 1
+            elif t == 0:
+                break
+            else:
+                raise Exception(f"Test.list error")
+        return a
+
+    def list(self) -> list[any]:
+        re = []
+        i = 0
+        o = 0
+        for t in self.order:
+            if t == 0:
+                re.append(self.input[i])
+                i += 1
+            elif t == 1:
+                re.append(self.output[o])
+                o += 1
+            else:
+                raise Exception(f"Test.list error")
+
+        return re
+
+    def append(self, unit: any) -> Test:
+        if isinstance(unit, Input):
+            self.input.append(unit)
+            self.order.append(0)
+            return self
+        elif isinstance(unit, Output):
+            self.output.append(unit)
+            self.order.append(1)
+            return self
+        else:
+            raise Exception(f"given type {type(unit)} is not supported")
+
+    def appendList(self, units: list[any]) -> Test:
+        for u in units:
+            self.append(u)
+        return self
+
+
+def traceback(test: Test, userOutput: list[str], indexOutput: int, depth: int) -> str:
+    tb = ""
+    n = 0
+    i = 0
+    o = 0
+    while o < indexOutput:
+        if test.order[n] == 0:
+            tb += "> "
+            tb += test.input[i].command
+            tb += "\n"
+            i += 1
+        if test.order[n] == 1:
+            tb += userOutput[o]
+            o += 1
+        n += 1
+
+    return tb
+
+
+def feedback(test: Test, userOutput: list[str], indexOutput: int, got: str) -> str:
+    output = test.output[indexOutput]
+    l = 2 * len(output.expectedResult) + 1
+    l = l if l < len(got) else len(got) - 1
+    re = ""
+
+    tb = traceback(test, userOutput, indexOutput, -1)
+    if len(tb) == 0:
+        re += "This error happened at the very beginning of the program execution\n\n"
+    else:
+        re += "The error happened after:\n"
+        re += tb
+        re += "\n\n"
+
+    re += f"Expected to find:\n" \
+          f'"{output.expectedResult}"\n' \
+          f"in:\n" \
+          f'"{got[:l]}..."\n\n' \
+          f"{output.feedback}\n"
+
+    return re
 
 
 Output_WaitingForMaxNum = Output(
