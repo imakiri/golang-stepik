@@ -72,7 +72,8 @@ func (m *Main) Supervise() {
 	var result bool
 	var feedback string
 	result, feedback, err = runner.Run()
-	fmt.Print(result, feedback, err)
+	fmt.Printf("--------------\n"+
+		"result: %v\nfeedback: %verror: %v", result, feedback, err)
 
 	if err = m.cleanup(userProgramName); err != nil {
 		fmt.Println(err)

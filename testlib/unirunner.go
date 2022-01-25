@@ -40,7 +40,7 @@ type unirunner struct {
 		ptt *buffer
 		all *buffer
 	}
-	err     io.Reader
+	err     io.ReadCloser
 	timeout time.Duration
 }
 
@@ -90,7 +90,6 @@ func (ur *unirunner) state() chan feedback {
 	loop:
 		for {
 			for reader.Scan() {
-				fmt.Fprintln(ur.std.out, reader.Text())
 				if !readOk {
 					switch reader.Text() {
 					case "true", "True":
@@ -132,12 +131,10 @@ func (ur *unirunner) Run() (result bool, feedback string, err error) {
 	var writers_ttp = io.MultiWriter(ur.buffers.all, ur.buffers.ttp, ur.std.out)
 	ur.tester.process.Stdin = io.TeeReader(pr, writers_ptt)
 	ur.program.process.Stdin = io.TeeReader(tr, writers_ttp)
-	//var errbuf = new(buffer)
-	var er, ew = io.Pipe()
-	ur.tester.process.Stderr = ew
-	//ur.tester.process.Stderr = errbuf
-	ur.err = er
-	//ur.err = errbuf
+	ur.err, err = ur.tester.process.StderrPipe()
+	if err != nil {
+		return false, "", err
+	}
 
 	ur.exe = true
 	if err = ur.program.process.Start(); err != nil {

@@ -52,6 +52,7 @@ func (h *handler) Write(p []byte) (n int, err error) {
 func (h *handler) Close() error {
 	h.out.Close()
 	h.err.Close()
+	//h.in.Close()
 	os.Exit(0)
 	return nil
 }
