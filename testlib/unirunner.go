@@ -50,30 +50,6 @@ func (ur *unirunner) shutdown() {
 	ur.tester.process.Process.Kill()
 }
 
-//func (ur *unirunner) ttp() {
-//	var writers = io.MultiWriter(ur.buffers.all, ur.buffers.ttp, ur.program.std.in, ur.std.out)
-//	var reader = bufio.NewReader(ur.tester.buffers.out)
-//	for ur.exe {
-//		var _, err = reader.WriteTo(writers)
-//		if err != nil {
-//			ur.shutdown()
-//			return
-//		}
-//	}
-//}
-
-//func (ur *unirunner) ptp() {
-//	var writers = io.MultiWriter(ur.buffers.all, ur.buffers.ptt, ur.tester.std.in, ur.std.out)
-//	var reader = bufio.NewReader(ur.program.buffers.out)
-//	for ur.exe {
-//		var _, err = reader.WriteTo(writers)
-//		if err != nil {
-//			ur.shutdown()
-//			return
-//		}
-//	}
-//}
-
 type feedback struct {
 	ok       bool
 	feedback string
@@ -115,6 +91,33 @@ func (ur *unirunner) state() chan feedback {
 	return ch
 }
 
+type ttpWriter struct {
+	w []io.Writer
+}
+
+func (t *ttpWriter) Write(p []byte) (n int, err error) {
+	p = append([]byte("> "), p...)
+	for i := range t.w {
+		n, err = t.w[i].Write(p)
+		if err != nil {
+			return
+		}
+		if n != len(p) {
+			err = io.ErrShortWrite
+			return
+		}
+	}
+	return len(p), nil
+}
+
+func newTTPWriter(writers ...io.Writer) io.Writer {
+	allWriters := make([]io.Writer, 0, len(writers))
+	for _, w := range writers {
+		allWriters = append(allWriters, w)
+	}
+	return &ttpWriter{allWriters}
+}
+
 func (ur *unirunner) Run() (result bool, feedback string, err error) {
 	if ur.program, err = NewHandel("main.exe", nil); err != nil {
 		return false, "", err
@@ -127,8 +130,8 @@ func (ur *unirunner) Run() (result bool, feedback string, err error) {
 	var tr, tw = io.Pipe()
 	ur.program.process.Stdout = pw
 	ur.tester.process.Stdout = tw
-	var writers_ptt = io.MultiWriter(ur.buffers.all, ur.buffers.ptt, ur.std.out)
-	var writers_ttp = io.MultiWriter(ur.buffers.all, ur.buffers.ttp, ur.std.out)
+	var writers_ptt = io.MultiWriter(ur.buffers.all, ur.buffers.ptt)
+	var writers_ttp = newTTPWriter(ur.buffers.all, ur.buffers.ttp)
 	ur.tester.process.Stdin = io.TeeReader(pr, writers_ptt)
 	ur.program.process.Stdin = io.TeeReader(tr, writers_ttp)
 	ur.err, err = ur.tester.process.StderrPipe()
@@ -145,12 +148,10 @@ func (ur *unirunner) Run() (result bool, feedback string, err error) {
 	}
 	defer ur.shutdown()
 
-	//go ur.ptp()
-	//go ur.ttp()
-
 	var ch = ur.state()
 	select {
 	case feedback := <-ch:
+		io.Copy(ur.std.out, ur.buffers.all)
 		return feedback.ok, feedback.feedback, feedback.err
 	case <-time.After(ur.timeout):
 		return false, "", errors.New("tester timeout")

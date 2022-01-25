@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -72,8 +73,8 @@ func (m *Main) Supervise() {
 	var result bool
 	var feedback string
 	result, feedback, err = runner.Run()
-	fmt.Printf("--------------\n"+
-		"result: %v\nfeedback: %verror: %v", result, feedback, err)
+	fmt.Printf("\n--------------\n"+
+		"result: %v\nfeedback: %v\nerror: %v", result, strings.TrimSpace(feedback), err)
 
 	if err = m.cleanup(userProgramName); err != nil {
 		fmt.Println(err)

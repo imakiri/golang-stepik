@@ -16,7 +16,7 @@ func main() {
 		//	fmt.Print("1")
 		//}
 
-		//fmt.Print("\nEnter command and data: ")
+		fmt.Print("\nEnter command and data: ")
 		if !scanner.Scan() {
 			return
 		}
@@ -27,7 +27,7 @@ func main() {
 			exe = false
 			fmt.Print("[Info] Bye!\n")
 		default:
-			fmt.Println(input[1])
+			fmt.Println(input[0])
 		}
 	}
 }

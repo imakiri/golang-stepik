@@ -115,3 +115,62 @@ func NewTest(validators []testlib.Validator, units []interface{}, timeout time.D
 
 	return test, nil
 }
+
+type handler struct {
+	in  io.ReadCloser
+	out io.WriteCloser
+	err io.WriteCloser
+}
+
+func (h *handler) Read(p []byte) (n int, err error) {
+	return h.in.Read(p)
+}
+
+func (h *handler) Write(p []byte) (n int, err error) {
+	return h.out.Write(p)
+}
+
+func (h *handler) Close() error {
+	h.out.Close()
+	h.err.Close()
+	return nil
+}
+
+func Tester(in io.ReadCloser, out io.WriteCloser, err io.WriteCloser, tests []testlib.Test) {
+	var handler = new(handler)
+	handler.in = in
+	handler.out = out
+	handler.err = err
+	defer handler.Close()
+
+	for i := range tests {
+		var result bool
+		var err error
+
+		var ch = make(chan bool, 1)
+		go func() {
+			time.Sleep(tests[i].Delay())
+			ch <- tests[i].Test(handler)
+		}()
+
+		select {
+		case result = <-ch:
+		case <-time.After(tests[i].Timeout()):
+			result = false
+		}
+
+		if !result {
+			fmt.Fprintln(handler.err, "false")
+			fmt.Fprintln(handler.err, tests[i].Feedback())
+			return
+		}
+
+		if err = tests[i].Error(); err != nil {
+			io.WriteString(handler.err, "false\n")
+			io.WriteString(handler.err, err.Error())
+			return
+		}
+	}
+
+	fmt.Fprintln(handler.err, "true")
+}
