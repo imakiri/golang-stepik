@@ -63,7 +63,7 @@ func main() {
 	var index int
 	var exe = true
 	for exe {
-		fmt.Print("\nEnter command and data: ")
+		fmt.Print("Enter command and data: ")
 		if !scanner.Scan() {
 			return
 		}

@@ -2,32 +2,19 @@ from __future__ import annotations
 import string
 from copy import copy
 
-from hstest import StageTest, dynamic_test, TestedProgram, CheckResult
-
 
 class Input:
     def __init__(self, string: str):
         self.command = string
-
-    def executeBy(self, program: TestedProgram) -> str:
-        return program.execute(self.command)
 
 
 class Output:
     def __init__(self, expectedResult: str, feedback: str):
         self.expectedResult = expectedResult
         self.feedback = feedback
-        self.acceptedSymbols = "\n "
-        self.threshold = 2
 
     def __copy__(self):
         return type(self)(self.expectedResult, self.feedback)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
 
     def append(self, additionalFeedback: str) -> Output:
         co = copy(self)
@@ -35,23 +22,73 @@ class Output:
         co.feedback += additionalFeedback
         return co
 
-    def check(self, reply: list[str]) -> bool:
-        i = reply[0].find(self.expectedResult)
-        if i == -1:
-            return False
 
-        j = 0
-        th = 0
-        while j < i:
-            if reply[0][j] not in self.acceptedSymbols:
-                th += 1
-                if th > self.threshold:
-                    return False
-            j += 1
+class Test:
+    def __init__(self):
+        self.input: list[Input] = []
+        self.output: list[Output] = []
+        self.order: list[int] = []
+        self.acceptedSymbols = "\n "
+        self.threshold = 2
 
-        reply[0] = reply[0][i + len(self.expectedResult):]
-        return True
+    def listInput(self) -> list[str]:
+        re: list[str] = []
+        for v in self.input:
+            re.append(v.command)
+        return re
 
+    def tracebackInput(self, outputIndex: int) -> list[Input]:
+        l: list[Input] = []
+        i = -1
+        o = -1
+        n = 0
+        while o < outputIndex:
+            if self.order[n] == 0:
+                i += 1
+            if self.order[n] == 1:
+                o += 1
+            n += 1
+
+        for j in range(i, -1, -1):
+            l.append(self.input[j])
+
+        return l
+
+    def append(self, unit: any) -> Test:
+        if isinstance(unit, Input):
+            self.input.append(unit)
+            self.order.append(0)
+            return self
+        elif isinstance(unit, Output):
+            self.output.append(unit)
+            self.order.append(1)
+            return self
+        else:
+            raise Exception(f"given type {type(unit)} is not supported")
+
+    def appendList(self, units: list[any]) -> Test:
+        for u in units:
+            self.append(u)
+        return self
+
+
+def feedback(test: Test, index: int, got: str) -> str:
+    traceInput = test.tracebackInput(index)
+    output = test.output[index]
+    l = 2 * len(output.expectedResult) + 1
+    l = l if l < len(got) else len(got) - 1
+    re = ""
+
+    if len(traceInput) != 0:
+        re += f'When executing "{traceInput[0].command}"\n'
+
+    re += f"Expected to find:\n" \
+          f'"{output.expectedResult}"\n' \
+          f"in:\n" \
+          f'"{got[:l]}..."\n' \
+          f"{output.feedback}\n"
+
+    return re
 
 class Test:
     def __init__(self):
@@ -94,6 +131,23 @@ class Test:
 
         return re
 
+    def tracebackInput(self, outputIndex: int) -> list[Input]:
+        l: list[Input] = []
+        i = -1
+        o = -1
+        n = 0
+        while o < outputIndex:
+            if self.order[n] == 0:
+                i += 1
+            if self.order[n] == 1:
+                o += 1
+            n += 1
+
+        for j in range(i, -1, -1):
+            l.append(self.input[j])
+
+        return l
+
     def append(self, unit: any) -> Test:
         if isinstance(unit, Input):
             self.input.append(unit)
@@ -112,43 +166,20 @@ class Test:
         return self
 
 
-def traceback(test: Test, userOutput: list[str], indexOutput: int, depth: int) -> str:
-    tb = ""
-    n = 0
-    i = 0
-    o = 0
-    while o < indexOutput:
-        if test.order[n] == 0:
-            tb += "> "
-            tb += test.input[i].command
-            tb += "\n"
-            i += 1
-        if test.order[n] == 1:
-            tb += userOutput[o]
-            o += 1
-        n += 1
-
-    return tb
-
-
-def feedback(test: Test, userOutput: list[str], indexOutput: int, got: str) -> str:
-    output = test.output[indexOutput]
-    l = 2 * len(output.expectedResult) + 1
+def feedback(test: Test, index: int, got: str) -> str:
+    traceInput = test.tracebackInput(index)
+    output = test.output[index]
+    l = 2 * len(output._expected) + 1
     l = l if l < len(got) else len(got) - 1
     re = ""
 
-    tb = traceback(test, userOutput, indexOutput, -1)
-    if len(tb) == 0:
-        re += "This error happened at the very beginning of the program execution\n\n"
-    else:
-        re += "The error happened after:\n"
-        re += tb
-        re += "\n\n"
+    if len(traceInput) != 0:
+        re += f'When executing "{traceInput[0].command}"\n'
 
     re += f"Expected to find:\n" \
-          f'"{output.expectedResult}"\n' \
+          f'"{output._expected}"\n' \
           f"in:\n" \
-          f'"{got[:l]}..."\n\n' \
+          f'"{got[:l]}..."\n' \
           f"{output.feedback}\n"
 
     return re

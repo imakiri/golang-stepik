@@ -4,17 +4,28 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
 func main() {
-	const size = 5
-	var storage [size]string
-	var index int
 	var scanner = bufio.NewScanner(os.Stdin)
+	fmt.Print("Enter the maximum number of notes: ")
+	if !scanner.Scan() {
+		return
+	}
+
+	var size, err = strconv.Atoi(scanner.Text())
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+
+	var storage = make([]string, size)
+	var index int
 	var exe = true
 	for exe {
-		fmt.Print("\nEnter command and data: ")
+		fmt.Print("Enter command and data: ")
 		if !scanner.Scan() {
 			return
 		}
@@ -29,14 +40,30 @@ func main() {
 				fmt.Print("[Error] Notepad is full\n")
 				continue
 			}
-			storage[index] = input[1]
+			if len(input) < 2 {
+				fmt.Print("[Error] Missing note argument\n")
+				continue
+			}
+
+			var note = strings.TrimSpace(input[1])
+			if note == "" {
+				fmt.Print("[Error] Missing note argument\n")
+				continue
+			}
+
+			storage[index] = note
 			index++
 			fmt.Print("[OK] The note was successfully created\n")
 		case "list":
+			var c int
 			for i, v := range storage {
 				if v != "" {
+					c++
 					fmt.Printf("[Info] %d: %s\n", i+1, v)
 				}
+			}
+			if c == 0 {
+				fmt.Println("[Info] Notepad is empty")
 			}
 			continue
 		case "clear":
