@@ -1,13 +1,12 @@
 package main
 
 import (
-	"github.com/imakiri/golang-stepik/testlib"
 	"github.com/imakiri/golang-stepik/testlib/working"
 	"os"
 	"time"
 )
 
-func MustNewTest(units []interface{}) testlib.Test {
+func MustNewTest(units []interface{}) working.Test {
 	var t, err = working.NewTest(nil, units, time.Second, 10*time.Millisecond, []string{})
 	if err != nil {
 		panic(err)
@@ -18,7 +17,7 @@ func MustNewTest(units []interface{}) testlib.Test {
 
 var feedback_command = "The program should print back only the given command and no more"
 
-var tests = []testlib.Test{
+var tests = []working.Test{
 	MustNewTest([]interface{}{
 		working.Output{
 			Expected: "",
@@ -38,5 +37,5 @@ var tests = []testlib.Test{
 }
 
 func main() {
-	working.Tester(os.Stdin, os.Stdout, os.Stderr, tests)
+	working.Run(os.Stdin, os.Stdout, os.Stderr, tests)
 }

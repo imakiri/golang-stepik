@@ -1,4 +1,4 @@
-package testlib
+package utils
 
 import (
 	"bytes"
@@ -6,18 +6,18 @@ import (
 	_ "unsafe"
 )
 
-type buffer struct {
+type Buffer struct {
 	sync.Mutex
 	bytes.Buffer
 }
 
-func (b *buffer) Read(p []byte) (n int, err error) {
+func (b *Buffer) Read(p []byte) (n int, err error) {
 	b.Lock()
 	defer b.Unlock()
 	return b.Buffer.Read(p)
 }
 
-func (b *buffer) Write(p []byte) (n int, err error) {
+func (b *Buffer) Write(p []byte) (n int, err error) {
 	b.Lock()
 	defer b.Unlock()
 	return b.Buffer.Write(p)

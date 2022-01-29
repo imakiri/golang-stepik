@@ -1,12 +1,6 @@
 from hstest import StageTest, TestedProgram, CheckResult, dynamic_test
 
 class Test(StageTest):
-	"""
-
-	Можем ли мы обсудить тесты без посредников?
-
-	"""
-
 	@dynamic_test
 	def test0(self) -> CheckResult:
 		program = TestedProgram()

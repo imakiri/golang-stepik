@@ -28,9 +28,7 @@ class Test(StageTest):
 			return CheckResult.wrong('The program should ask user for a command')
 
 		reply = program.execute("list").strip().lower().split("\n")
-		if "" not in reply[0]:
-			return CheckResult.wrong('')
-		if "enter command and data:" not in reply[1]:
+		if "enter command and data:" not in reply[0]:
 			return CheckResult.wrong("The program should ask user for a command\nThe program shouldn't print empty notes")
 
 		reply = program.execute("exit").strip().lower().split("\n")
