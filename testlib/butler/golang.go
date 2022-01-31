@@ -14,19 +14,15 @@ type golang struct {
 }
 
 func (g *golang) compile() error {
-	var compiler = exec.Command("E:\\golang\\sdk\\go1.16.10\\bin\\go.exe", "build", fmt.Sprintf("%s.go", g.name))
+	var goRoot = os.Getenv("GOROOT")
+	var compiler = exec.Command(fmt.Sprintf("%s\\bin\\go.exe", goRoot), "build", fmt.Sprintf("%s.go", g.name))
 	var err = compiler.Run()
 	if err != nil {
-		if !compiler.ProcessState.Success() {
-			fmt.Println(compiler.String())
-
-			var output, err = compiler.Output()
-			if err != nil {
-				return err
-			}
-			return errors.New(string(output))
+		var output, err = compiler.Output()
+		if err != nil {
+			return err
 		}
-		return err
+		return errors.New(string(output))
 	}
 
 	return nil
