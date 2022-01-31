@@ -17,10 +17,8 @@ func (p *python) Tidy() error {
 	panic("implement me")
 }
 
-func newPython(t target) *python {
+func newPython(t string) *python {
 	var p = new(python)
 	//p.filename = fmt.Sprintf("%s.exe", t)
 	return p
 }
-
-

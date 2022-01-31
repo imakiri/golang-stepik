@@ -17,8 +17,8 @@ func MustNewTest(units []interface{}) working.Test {
 
 var feedback_command = "The program should print back only the given command and no more"
 
-var tests = []working.Test{
-	MustNewTest([]interface{}{
+func main() {
+	working.Run(os.Stdin, os.Stdout, os.Stderr, MustNewTest([]interface{}{
 		working.Output{
 			Expected: "",
 			Feedback: feedback_command,
@@ -33,9 +33,5 @@ var tests = []working.Test{
 			Expected: "delete",
 			Feedback: feedback_command,
 		},
-	}),
-}
-
-func main() {
-	working.Run(os.Stdin, os.Stdout, os.Stderr, tests)
+	}))
 }

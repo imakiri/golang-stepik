@@ -17,17 +17,16 @@ func (g *golang) compile() error {
 	var compiler = exec.Command("E:\\golang\\sdk\\go1.16.10\\bin\\go.exe", "build", fmt.Sprintf("%s.go", g.name))
 	var err = compiler.Run()
 	if err != nil {
-		return err
-	}
+		if !compiler.ProcessState.Success() {
+			fmt.Println(compiler.String())
 
-	if !compiler.ProcessState.Success() {
-		fmt.Println(compiler.String())
-
-		var output, err = compiler.Output()
-		if err != nil {
-			return err
+			var output, err = compiler.Output()
+			if err != nil {
+				return err
+			}
+			return errors.New(string(output))
 		}
-		return errors.New(string(output))
+		return err
 	}
 
 	return nil
@@ -74,9 +73,8 @@ func (g *golang) Tidy() error {
 	return err
 }
 
-func newGolang(t target) *golang {
+func newGolang(name string) *golang {
 	var g = new(golang)
-	g.name = string(t)
+	g.name = name
 	return g
 }
-

@@ -2,15 +2,34 @@ package testlib
 
 import (
 	"fmt"
+	"github.com/imakiri/golang-stepik/testlib/cfg"
 	"github.com/imakiri/golang-stepik/testlib/runner"
-	"reflect"
+	"github.com/kr/pretty"
 	"time"
 )
 
 type Main struct{}
 
 func (m *Main) Supervise(debug bool) {
-	fmt.Printf("\n--------------\n")
+	var config, err = cfg.ReadConfig()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	pretty.Println(*config)
+
+	switch config.Mode {
+	case cfg.Main:
+		m.main(config)
+	case cfg.Legacy:
+		m.legacy(config)
+	default:
+		fmt.Printf("error: unknown mode: %s\n", config.Mode)
+	}
+}
+
+func (m *Main) main(config *cfg.Config) {
 	var r, err = runner.NewRunner(15 * time.Second)
 
 	if err != nil {
@@ -18,19 +37,12 @@ func (m *Main) Supervise(debug bool) {
 		return
 	}
 
-	var message runner.Message
-	message, err = r.Run(debug)
-	fmt.Printf("\n--------------\n")
-
-	var me = reflect.ValueOf(&message).Elem()
-	var _type = me.Type()
-
-	fmt.Println("Tester message:")
-	for i := 0; i < me.NumField(); i++ {
-		f := me.Field(i)
-		fmt.Printf("\t%s: %v\n", _type.Field(i).Name, f.Interface())
+	if err = r.Run(*config); err != nil {
+		fmt.Println("Supervisor message:")
+		fmt.Printf("\t%v\n", err)
 	}
+}
 
-	fmt.Println("Supervisor message:")
-	fmt.Printf("\t%v\n", err)
+func (m *Main) legacy(config *cfg.Config) {
+
 }

@@ -1,0 +1,5 @@
+mode: main
+debug: true
+tests:
+  - name: test1.go
+  - name: test2.go

@@ -1,0 +1,4 @@
+mode: main
+debug: true
+tests:
+  - name: test1.go

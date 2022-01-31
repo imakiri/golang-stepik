@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func Run(in io.ReadCloser, out io.WriteCloser, err io.WriteCloser, tests []Test) {
+func Run(in io.ReadCloser, out io.WriteCloser, err io.WriteCloser, test Test) {
 	var handler = new(handler)
 	handler.in = in
 	handler.out = out
@@ -17,30 +17,26 @@ func Run(in io.ReadCloser, out io.WriteCloser, err io.WriteCloser, tests []Test)
 	var message = new(runner.Message)
 	message.Result = true
 
-	for i := range tests {
-		var ch = make(chan bool, 1)
-		go func() {
-			time.Sleep(tests[i].Delay())
-			ch <- tests[i].Test(handler)
-		}()
+	var ch = make(chan bool, 1)
+	go func() {
+		time.Sleep(test.Delay())
+		ch <- test.Test(handler)
+	}()
 
-		var result bool
-		select {
-		case result = <-ch:
-		case <-time.After(tests[i].Timeout()):
-			result = false
-		}
+	var result bool
+	select {
+	case result = <-ch:
+	case <-time.After(test.Timeout()):
+		result = false
+	}
 
-		if result {
-			continue
-		} else {
-			message.Result = false
-			message.Feedback = tests[i].Feedback()
+	if !result {
+		message.Result = false
+		message.Feedback = test.Feedback()
 
-			var err = tests[i].Error()
-			if err != nil {
-				message.Error = err.Error()
-			}
+		var err = test.Error()
+		if err != nil {
+			message.Error = err.Error()
 		}
 	}
 

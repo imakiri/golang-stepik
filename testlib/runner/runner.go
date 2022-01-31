@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/imakiri/golang-stepik/testlib/butler"
+	"github.com/imakiri/golang-stepik/testlib/cfg"
 	"github.com/imakiri/golang-stepik/testlib/utils"
 	"gopkg.in/yaml.v2"
 	"io"
 	"os"
 	"os/exec"
+	"reflect"
+	"strings"
 	"time"
 )
 
@@ -56,25 +59,18 @@ func (r *runner) state() chan Message {
 	return ch
 }
 
-func (r *runner) Run(debug bool) (message Message, err error) {
-	var tester butler.Butler
-	if tester, err = butler.NewButler(butler.Tester); err != nil {
-		return
-	}
-	defer tester.Tidy()
+func (r *runner) print(message *Message) {
+	var me = reflect.ValueOf(message).Elem()
+	var _type = me.Type()
 
-	var solution butler.Butler
-	if debug {
-		if solution, err = butler.NewButler(butler.ReferenceSolution); err != nil {
-			return
-		}
-	} else {
-		if solution, err = butler.NewButler(butler.UserSolution); err != nil {
-			return
-		}
+	fmt.Println("\nTester message:")
+	for i := 0; i < me.NumField(); i++ {
+		f := me.Field(i)
+		fmt.Printf("\t%s: %v\n", _type.Field(i).Name, f.Interface())
 	}
-	defer solution.Tidy()
+}
 
+func (r *runner) run(debug bool, args []string, tester, solution butler.Butler) (message Message, err error) {
 	var pr, pw = io.Pipe()
 	var tr, tw = io.Pipe()
 
@@ -84,7 +80,7 @@ func (r *runner) Run(debug bool) (message Message, err error) {
 	if r.tester, err = tester.Prepare(nil, io.TeeReader(pr, writers_ptt), tw, nil); err != nil {
 		return
 	}
-	if r.solution, err = solution.Prepare(nil, io.TeeReader(tr, writers_ttp), pw, nil); err != nil {
+	if r.solution, err = solution.Prepare(args, io.TeeReader(tr, writers_ttp), pw, nil); err != nil {
 		return
 	}
 	if r.err, err = r.tester.StderrPipe(); err != nil {
@@ -102,7 +98,10 @@ func (r *runner) Run(debug bool) (message Message, err error) {
 
 	var ch = r.state()
 	if debug {
+		defer io.Copy(r.std.out, strings.NewReader("\n--------------\n"))
 		defer io.Copy(r.std.out, r.buffers.all)
+		defer io.Copy(r.std.out, strings.NewReader("--------------\n"))
+		defer io.Copy(r.std.out, strings.NewReader("Test sequence:\n"))
 	}
 
 	select {
@@ -116,6 +115,47 @@ func (r *runner) Run(debug bool) (message Message, err error) {
 		}
 		return message, errors.New("error: tester timeout")
 	}
+}
+
+func (r *runner) Run(config cfg.Config) error {
+	var err error
+	var solution butler.Butler
+	if config.Debug {
+		if solution, err = butler.NewButler(butler.ReferenceSolution); err != nil {
+			return err
+		}
+	} else {
+		if solution, err = butler.NewButler(butler.UserSolution); err != nil {
+			return err
+		}
+	}
+	defer solution.Tidy()
+
+	var tester butler.Butler
+	var message = new(Message)
+	for _, test := range config.Tests {
+		fmt.Print("---------------------------------------\n")
+		fmt.Printf("Starting %s\n\n", test.Name)
+
+		if tester, err = butler.NewButler(test.Name); err != nil {
+			return err
+		}
+
+		var args = strings.Split(test.Args, " ")
+		if *message, err = r.run(config.Debug, args, tester, solution); err != nil {
+			tester.Tidy()
+			return err
+		}
+		tester.Tidy()
+
+		r.print(message)
+
+		if !message.Result && !config.Debug {
+			return nil
+		}
+	}
+
+	return nil
 }
 
 func NewRunner(timeout time.Duration) (*runner, error) {
